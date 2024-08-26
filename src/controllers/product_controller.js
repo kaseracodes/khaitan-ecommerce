@@ -1,9 +1,10 @@
 const { StatusCodes, ReasonPhrases } = require('http-status-codes');
 
-const ProductService = require('../services/product_service');
-const FakeStoreRepository = require('../repositories/fake_store_repository');
+const { ProductService } = require('../services/index');
+const { ProductRepository } = require('../repositories/index');
+const errorResponse = require('../utils/error_response');
 
-const productService = new ProductService(new FakeStoreRepository());
+const productService = new ProductService(new ProductRepository());
 
 async function createProduct(req, res) {
 
@@ -21,14 +22,17 @@ async function createProduct(req, res) {
         });
 
     } catch(error) {
-        console.log("Something went wrong", error);
+        console.log("ProductController: Something went wrong", error);
+        return res
+                .status(error.statusCode)
+                .json(errorResponse(error.reason, error));
     }
 
 }
 
 async function getProducts(req, res) {
     try {
-        const response = await productService.getProducts();
+        const response = await productService.getProducts(req.query);
         return res
                 .status(StatusCodes.OK)
                 .json({
@@ -38,7 +42,10 @@ async function getProducts(req, res) {
                     data: response
         });
     } catch(error) {
-        console.log("Something went wrong", error);
+        console.log("ProductController: Something went wrong", error);
+        return res
+                .status(error.statusCode)
+                .json(errorResponse(error.reason, error));
     }
 }
 
@@ -55,12 +62,41 @@ async function getProduct(req, res) { // /api/v1/products/2
                     data: response
         });
     } catch(error) {
-        console.log("Something went wrong", error);
+        console.log("ProductController: Something went wrong", error);
+        return res
+                .status(error.statusCode)
+                .json(errorResponse(error.reason, error));
     }
 }
+
+async function destroyProduct(req, res) {
+
+    try {
+        
+        const response = await productService.destroyProduct(req.params.id);
+    
+        return res
+                .status(StatusCodes.OK)
+                .json({
+                    sucess: true,
+                    error: {},
+                    message: "Successfully deleted Product",
+                    data: response
+        });
+
+    } catch(error) {
+        console.log("ProductController: Something went wrong", error);
+        return res
+                .status(error.statusCode)
+                .json(errorResponse(error.reason, error));
+    }
+
+}
+
 
 module.exports = {
     createProduct,
     getProducts,
-    getProduct
+    getProduct,
+    destroyProduct
 }

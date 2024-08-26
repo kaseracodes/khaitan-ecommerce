@@ -1,8 +1,6 @@
 ### Project Setup Instructions
 
-
 1. Clone the project
-
 
 2. Move into the directory of the downloaded project
 
