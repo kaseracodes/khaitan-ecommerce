@@ -1,1 +1,11 @@
 PORT=3001
+DB_URL=localhost
+DB_USER=root
+DB_NAME=<your-db-name>
+DB_PASS=<your-db-password>
+DB_ALTER=false
+DB_FORCE=true
+SALT_ROUNDS=9
+JWT_SECRET=ecom_jwt_secret
+JWT_EXPIRY=1h
+NODE_ENV=development
