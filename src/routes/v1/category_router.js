@@ -3,7 +3,7 @@ const express = require('express');
 const { CategoryController } = require('../../controllers/index');
 
 
-const { createCategory, getAllCategories, getCategory, destroyCategory, getProductsForCategory }  = CategoryController;
+const { createCategory, getAllCategories, getCategory, updateCategory, destroyCategory, getProductsForCategory }  = CategoryController;
 const { createCategoryValidator } = require('../../middlewares/category_middleware');
 
 const categoryRouter = express.Router();
@@ -12,6 +12,8 @@ const categoryRouter = express.Router();
 categoryRouter.post('/', 
                 createCategoryValidator, 
                 createCategory); // mapping a route to a controller
+
+categoryRouter.put('/:id', updateCategory);
                 
 categoryRouter.get('/', getAllCategories);
 categoryRouter.get('/:id', getCategory);
