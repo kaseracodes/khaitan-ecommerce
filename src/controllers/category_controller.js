@@ -4,6 +4,7 @@ const { CategoryService }  = require('../services/index');
 const { ProductRepository, CategoryRepository } = require('../repositories/index');
 
 const errorResponse = require('../utils/error_response');
+const { response } = require('express');
 
 const categoryService = new CategoryService(new CategoryRepository(), new ProductRepository());
 
@@ -142,6 +143,43 @@ async function updateCategory(req, res) {
     }
 }
 
+async function partialUpdateCategory(req, res) {
+    try {
+        // Extract name and description from request body
+        const { name,description } = req.body;
+        console.log(req.body);
+
+        // Validate if updates are provided
+        if (!name && !description) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                success: false,
+                error: { message: "No updates are required" },
+                message: "Invalid input",
+                data: {}
+            });
+        }
+
+        // Call the partialUpdateCategory service function
+        const response = await categoryService.partialUpdateCategory(req.params.id, name, description);
+
+        // // Return success response
+        return res.status(StatusCodes.OK).json({
+            success: true,
+            error: {},
+            message: "Successfully updated Category",
+            data: response
+        });
+        // return res.json("Done");
+
+    } catch (error) {
+        console.log("CategoryController: Something went wrong", error);
+        console.log("Errorname", error.name);
+        return res
+            .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+            .json(errorResponse(error.reason, error));
+    }
+}
+
 async function destroyCategory(req, res) {
 
     try {
@@ -173,5 +211,6 @@ module.exports = {
     createCategory,
     getAllCategories,
     getProductsForCategory,
-    updateCategory
+    updateCategory,
+    partialUpdateCategory
 }

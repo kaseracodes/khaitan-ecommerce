@@ -51,6 +51,23 @@ class CategoryRepository {
         }
     }
 
+    async partialUpdateCategory(id, name, description) {
+        try {
+            // Find category based of id (primary key) for proper identification
+            const category = await Category.findByPk(id);
+
+            // Update the name or description
+            const response = await category.update({
+                name,
+                description
+            });
+            return response;
+        } catch(error) {
+            console.log(error);
+            throw(error);
+        }
+    }
+
     async destroyCategory(categoryId) {
         try {
             const response = await Category.destroy({
