@@ -63,7 +63,28 @@ async function signin(req, res) {
 
 }
 
+async function getAllUsers(req, res) {
+    try {
+        const response = await userService.getAllUsers();
+
+        return res
+                .status(StatusCodes.OK)
+                .json({
+                    sucess: true,
+                    error: {},
+                    message: "Successfully fetched Users",
+                    data: response
+        });
+    } catch (error) {
+        console.log("CategoryController: Something went wrong", error);
+        return res
+                .status(error.statusCode)
+                .json(errorResponse(error.reason, error));
+    }
+}
+
 module.exports = {
     createUser,
-    signin
+    signin,
+    getAllUsers
 }
