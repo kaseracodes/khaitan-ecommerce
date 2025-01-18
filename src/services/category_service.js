@@ -81,24 +81,6 @@ class CategoryService {
         }
     }
 
-    async partialUpdateCategory(categoryId, name, description) {
-        try{
-            const response = await this.respository.updateCategory(categoryId, name, description);
-            if(!response) {
-                // we were not able to find anything
-                console.log("CategoryService: ", categoryId, "not found");
-                throw new NotFoundError("Category", "id", categoryId);
-            }
-            return response;
-        } catch(error) {
-            if(error.name === "NotFoundError") {
-                throw error;
-            }
-            console.log("Category Service: ",error);
-            throw new InternalServerError();
-        }
-    }
-
     async destroyCategory(categoryId) {
         try {
             const response = await this.respository.destroyCategory(categoryId);
