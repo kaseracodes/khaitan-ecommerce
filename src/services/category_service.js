@@ -63,8 +63,10 @@ class CategoryService {
         
     }
 
-    async updateCategory(categoryId, name, description) {
+    async updateCategory(categoryId, data) {
         try{
+            const { name, description } = data;
+
             const response = await this.respository.updateCategory(categoryId, name, description);
             if(!response) {
                 // we were not able to find anything

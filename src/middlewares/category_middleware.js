@@ -2,7 +2,7 @@ const { StatusCodes, ReasonPhrases } = require('http-status-codes');
 const errorResponse = require('../utils/error_response');
 const BadRequest = require('../errors/bad_request_error');
 
-function createCategoryValidator(req, res, next) {
+function CategoryValidator(req, res, next) {
     if(!req.body.name) {
         return res
                 .status(StatusCodes.BAD_REQUEST)
@@ -20,5 +20,5 @@ function createCategoryValidator(req, res, next) {
 }
 
 module.exports = {
-    createCategoryValidator
+    CategoryValidator
 }

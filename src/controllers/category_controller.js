@@ -110,27 +110,15 @@ async function getCategory(req, res) {
 
 async function updateCategory(req, res) {
     try {
-        // Extract name and description from request body
-        const { name, description } = req.body;
 
-        // Validate if name and description are provided
-        if (!name || !description) {
-            return res.status(StatusCodes.BAD_REQUEST).json({
-                success: false,
-                error: { message: "Name and description are required" },
-                message: "Invalid input",
-                data: {}
-            });
-        }
+        const response = await categoryService.updateCategory(req.params.id, req.body);
 
-        // Call the updateCategory service function
-        const response = await categoryService.updateCategory(req.params.id, name, description);
-
-        // Return success response
-        return res.status(StatusCodes.OK).json({
+        return res
+            .status(StatusCodes.OK)
+            .json({
             success: true,
             error: {},
-            message: "Successfully updated Category",
+            message: ReasonPhrases.OK + " Category",
             data: response
         });
 
@@ -138,7 +126,7 @@ async function updateCategory(req, res) {
         console.log("CategoryController: Something went wrong", error);
         console.log("Errorname", error.name);
         return res
-            .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+            .status(error.statusCode)
             .json(errorResponse(error.reason, error));
     }
 }
