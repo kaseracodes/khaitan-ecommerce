@@ -15,7 +15,7 @@ class UserService {
 
     async createUser(user) {
         try {
-            const response = await this.respository.createUser(user.email, user.password);
+            const response = await this.respository.createUser(user.email, user.password, user.name, user.phoneNumber, user.roleId);
             await this.cartRepository.createCart(response.id);
             return response;
         } catch(error) {
@@ -50,7 +50,11 @@ class UserService {
             if(!doesPasswordMatch) {
                 throw new UnauthorizedError();
             }
-            return generateJWT({email: user.email, id: user.id});
+            return generateJWT({
+                email: user.email, 
+                id: user.id, 
+                roleId: user.roleId
+            });
         } catch(error) {
             console.log("UserService: ",error);
             if(error.name === "NotFoundError" || error.name === "UnauthorizedError") {

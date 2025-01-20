@@ -20,7 +20,34 @@ const User = db.define('user', {
             len: [3, 30],
             isAlphanumeric: true,
         }
-    }
+    },
+    name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        validate: {
+            len: [4, 50],
+        },
+    },
+    phoneNumber: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
+        validate: {
+            is: /^\d+$/,
+            len: [10, 15],
+        },
+    },    
+    roleId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        validate: {
+            isInt: true, 
+        },
+    },
+    isRoleVerified: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+    },
 }, {
     hooks: {
         beforeCreate: function (user) {
@@ -31,5 +58,3 @@ const User = db.define('user', {
 });
 
 module.exports = User;
-
-// create a new user api

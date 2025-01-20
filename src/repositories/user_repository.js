@@ -35,11 +35,14 @@ class UserRepository {
         }
     }
 
-    async createUser(email, password) {
+    async createUser(email, password, name, phoneNumber, roleId) {
         try {
             const response = await User.create({
                 email,
-                password
+                password,
+                name, 
+                phoneNumber, 
+                roleId
             });
             return response;
         } catch(error) {

@@ -29,10 +29,13 @@ app.listen(PORT, async () => {
     if(NODE_ENV == 'development') {
         if(DB_FORCE == true) {
             await db.sync({ force: true});
+            console.log("Database synced with `force: true`");
         } else if (DB_ALTER == true) {
             await db.sync({ alter: true});
+            console.log("Database synced with `alter: true`");
         } else {
             await db.sync();
+            console.log("Database synced without force or alter");
         }
     }
     if(NODE_ENV == 'production') {

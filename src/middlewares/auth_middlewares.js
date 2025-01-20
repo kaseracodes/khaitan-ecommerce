@@ -22,7 +22,7 @@ const isLoggedIn = function (req, res, next) {
 
     // modify my request object
 
-    req.user = { email: decodedToken.email, id: decodedToken.id };
+    req.user = { email: decodedToken.email, id: decodedToken.id, roleId: decodedToken.roleId };
 
     next();
 }
