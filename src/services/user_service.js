@@ -80,6 +80,16 @@ class UserService {
         
     }
 
+    async getRoleUnverifiedUsers() {
+        try {
+            const users = await this.respository.getRoleUnverifiedUsers();
+            return users;
+        } catch (error) {
+            console.log("UserService: Error fetching unverified users", error);
+            throw new InternalServerError();
+        }
+    }
+
     async getUser(userId) {
         try {
             const response = await this.respository.getUser(userId);

@@ -1,3 +1,5 @@
+const { Op } = require("sequelize");
+
 const { User } = require('../models/index');
 
 class UserRepository {
@@ -7,6 +9,21 @@ class UserRepository {
             return response;
         } catch(error) {
             console.log(error);
+            throw error;
+        }
+    }
+
+    async getRoleUnverifiedUsers() {
+        try {
+            const unverifiedUsers = await User.findAll({
+                where: {
+                    isRoleVerified: false,
+                    roleId: { [Op.ne]: 0 }
+                },
+            });
+            return unverifiedUsers;
+        } catch (error) {
+            console.log("UserRepository: Error fetching unverified users", error);
             throw error;
         }
     }

@@ -75,9 +75,26 @@ async function verifyUserRole(req, res) {
                 message: "User role verification updated successfully",
                 data: response,
             });
-            
+
     } catch (error) {
         console.log("UserController: Something went wrong", error);
+        return res
+            .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+            .json(errorResponse(error.reason || ReasonPhrases.INTERNAL_SERVER_ERROR, error));
+    }
+}
+
+async function getRoleUnverifiedUsers(req, res) {
+    try {
+        const response = await userService.getRoleUnverifiedUsers();
+        return res.status(StatusCodes.OK).json({
+            success: true,
+            error: {},
+            message: "Successfully fetched users whose roles are unverified",
+            data: response,
+        });
+    } catch (error) {
+        console.log("UserController: Error fetching unverified users", error);
         return res
             .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
             .json(errorResponse(error.reason || ReasonPhrases.INTERNAL_SERVER_ERROR, error));
@@ -87,5 +104,6 @@ async function verifyUserRole(req, res) {
 module.exports = {
     createUser,
     signin,
-    verifyUserRole
+    verifyUserRole,
+    getRoleUnverifiedUsers
 }

@@ -4,7 +4,7 @@ const { UserController } = require('../../controllers/index');
 const { isLoggedIn } = require('../../middlewares/auth_middlewares');
 
 
-const { createUser, signin, verifyUserRole }  = UserController;
+const { createUser, signin, verifyUserRole, getRoleUnverifiedUsers }  = UserController;
 
 const userRouter = express.Router();
 
@@ -12,5 +12,6 @@ const userRouter = express.Router();
 userRouter.post('/signup', createUser); // mapping a route to a controller
 userRouter.post('/signin', signin);
 userRouter.patch('/:id/verify/role', isLoggedIn, verifyUserRole);
+userRouter.get("/unverified/role", isLoggedIn, getRoleUnverifiedUsers);
    
 module.exports = userRouter;
