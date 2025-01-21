@@ -51,6 +51,10 @@ class UserService {
             if(!doesPasswordMatch) {
                 throw new UnauthorizedError();
             }
+            // roleId 0 corresponds to a normal user.
+            if((user.roleId != 0) && (!user.isRoleVerified)){
+                throw new ForbiddenError('Admin Panel', 'signin', 'Role unverified')
+            }
             return generateJWT({
                 email: user.email, 
                 id: user.id, 
@@ -58,7 +62,7 @@ class UserService {
             });
         } catch(error) {
             console.log("UserService: ",error);
-            if(error.name === "NotFoundError" || error.name === "UnauthorizedError") {
+            if(error.name === "NotFoundError" || error.name === "UnauthorizedError" || error.name === "ForbiddenError") {
                 throw error;
             }
             throw new InternalServerError();
