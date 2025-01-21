@@ -63,7 +63,29 @@ async function signin(req, res) {
 
 }
 
+async function verifyUserRole(req, res) {
+    try {
+        const response = await userService.verifyUserRole(req);
+
+        return res
+            .status(StatusCodes.OK)
+            .json({
+                success: true,
+                error: {},
+                message: "User role verification updated successfully",
+                data: response,
+            });
+            
+    } catch (error) {
+        console.log("UserController: Something went wrong", error);
+        return res
+            .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+            .json(errorResponse(error.reason || ReasonPhrases.INTERNAL_SERVER_ERROR, error));
+    }
+}
+
 module.exports = {
     createUser,
-    signin
+    signin,
+    verifyUserRole
 }

@@ -64,6 +64,24 @@ class UserRepository {
             throw error;
         }
     }
+
+    async updateUser(userId, updateData) {
+        try {
+            const user = await User.findByPk(userId);
+
+            if (!user) {
+                throw new NotFoundError('User', 'id', userId);
+            }
+
+            // Update fields dynamically based on updateData
+            const updatedUser = await user.update(updateData);
+
+            return updatedUser;
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
+    }
 }
 
 

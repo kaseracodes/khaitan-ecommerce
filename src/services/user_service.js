@@ -2,6 +2,7 @@ const BadRequest = require("../errors/bad_request_error");
 const ConflictError = require("../errors/conflict_error");
 const InternalServerError = require("../errors/internal_server_error");
 const NotFoundError = require("../errors/not_found_error");
+const ForbiddenError = require("../errors/forbidden_error");
 const bcrypt = require('bcrypt');
 const UnauthorizedError = require("../errors/unauthorized_error");
 const { generateJWT } = require("../utils/auth");
@@ -111,6 +112,34 @@ class UserService {
             throw new InternalServerError();
         }
         
+    }
+
+    async verifyUserRole(req) {
+        try {
+            var currentUser = req.user;
+            const requestedUser = await this.respository.getUser(req.params.id);
+            if (!requestedUser) {
+                throw new NotFoundError("User", "id", req.params.id);
+            }
+            // current user should only be allowed to verify the requested user if his role is a direct ancestor of the requested role
+            // if ( !isDirectAncestor(currentUser.roleId, requestedUser.roleId) ){
+            //     throw new ForbiddenError('User.isRoleVerified', 'update', `You are not a direct ancestor of ${requestedUser.requestedRoleId}`);
+            // }
+            if (!requestedUser.isRoleVerified){
+                const updatedUser = await this.respository.updateUser(requestedUser.id, { isRoleVerified: true });
+                return updatedUser;
+            }
+            else{
+                const updatedUser = await this.respository.updateUser(requestedUser.id, { isRoleVerified: false });
+                return updatedUser;
+            }
+        } catch (error) {
+            if (error.name === "NotFoundError" || error.name === "ForbiddenError") {
+                throw error;
+            }
+            console.log("UserService: ", error);
+            throw new InternalServerError();
+        }
     }
     
 }
