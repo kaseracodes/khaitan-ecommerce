@@ -35,28 +35,36 @@ class CategoryRepository {
     }
 
     async updateCategory(id, name, description) {
-        try {
-            const [rowsUpdated, [updatedCategory]] = await Category.update(
-                { 
-                    name, 
-                    description 
-                },
-                { 
-                    where: { id }, 
-                    returning: true 
+            try {
+                // Perform the update operation
+                const rowsUpdated = await Attribute.update(
+                    { 
+                        name, 
+                        description,
+                    },
+                    { 
+                        where: { id }
+                    }
+                );
+        
+                // If no rows were updated, throw a NotFoundError
+                if (rowsUpdated[0] === 0) {
+                    throw new NotFoundError("Attribute", "id", id);
                 }
-            );
-    
-            if (rowsUpdated === 0) {
-                throw new NotFoundError("Category", "id", id);
+        
+                // Fetch the updated record explicitly
+                const updatedCategory = await Category.findOne({ where: { id } });
+        
+                if (!updatedCategory) {
+                    throw new NotFoundError("Category", "id", id);
+                }
+        
+                return updatedCategory;
+            } catch (error) {
+                console.log("CategoryRepository: ", error);
+                throw error;
             }
-    
-            return updatedCategory;
-        } catch (error) {
-            console.log("CategoryRepository: ", error);
-            throw error;
-        }
-    }  
+        }  
 
     async destroyCategory(categoryId) {
         try {
