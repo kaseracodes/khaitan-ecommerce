@@ -9,7 +9,7 @@ class AttributeService {
 
     async createAttribute(attribute) {
         try {
-            const response = await this.repository.createAttribute(attribute.categoryId, attribute.name, attribute.description, attribute.dataType, attribute.unit);
+            const response = await this.repository.createAttribute(attribute.categoryId, attribute.name, attribute.dataType, attribute.unit);
             return response;
         } catch(error) {
             console.log("AttributeService: ",error);
@@ -51,7 +51,7 @@ class AttributeService {
     async updateAttribute(attributeId, data) {
         try{
             const { categoryId, name, description, dataType, unit } = data;
-            
+
             const response = await this.repository.updateAttribute(attributeId, categoryId, name, description, dataType, unit);
             if(!response) {
                 // we were not able to find anything

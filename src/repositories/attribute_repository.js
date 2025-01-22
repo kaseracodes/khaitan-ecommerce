@@ -21,7 +21,7 @@ class AttributeRepository {
         }
     }
 
-    async createAttribute(categoryId, name, description, dataType, unit) {
+    async createAttribute(categoryId, name, dataType, unit) {
         try {
             const response = await Attribute.create({
                 categoryId,
@@ -37,7 +37,7 @@ class AttributeRepository {
         }
     }
 
-    async updateAttribute(id, categoryId, name, description, dataType, unit) {
+    async updateAttribute(id, categoryId, name, dataType, unit) {
         try {
             // Perform the update operation
             const rowsUpdated = await Attribute.update(
