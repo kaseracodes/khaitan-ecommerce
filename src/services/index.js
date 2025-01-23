@@ -4,6 +4,7 @@ const UserService = require('./user_service');
 const CartService = require('./cart_service');
 const OrderService = require('./order_service');
 const PermissionService = require('./permission_service');
+const RoleService = require('./role_service');
 
 module.exports = {
     CategoryService, 
@@ -11,5 +12,6 @@ module.exports = {
     UserService, 
     CartService,
     OrderService,
-    PermissionService
+    PermissionService,
+    RoleService
 }
