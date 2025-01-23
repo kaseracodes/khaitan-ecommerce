@@ -4,11 +4,14 @@ const PingController = require('./ping_controller');
 const UserController = require('./user_controller');
 const CartController = require('./cart_controller');
 const OrderController = require('./order_controller');
+const PermissionController = require('./permission_controller');
+
 module.exports = {
     CategoryController,
     ProductController,
     PingController,
     UserController,
     CartController,
-    OrderController
+    OrderController,
+    PermissionController
 }
