@@ -26,7 +26,6 @@ class AttributeRepository {
             const response = await Attribute.create({
                 categoryId,
                 name,
-                description,
                 dataType,
                 unit
             });
@@ -44,7 +43,6 @@ class AttributeRepository {
                 { 
                     categoryId,
                     name, 
-                    description,
                     dataType,
                     unit
                 },
@@ -68,6 +66,20 @@ class AttributeRepository {
             return updatedAttribute;
         } catch (error) {
             console.log("AttributeRepository: ", error);
+            throw error;
+        }
+    }
+
+    async getAttributesForCategory(categoryId) {
+        try {
+            const response = await Attribute.findAll({
+                where: {
+                    categoryId: categoryId
+                }
+            });
+            return response;
+        } catch(error) {
+            console.log(error);
             throw error;
         }
     }
