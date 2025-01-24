@@ -47,6 +47,11 @@ Order.belongsToMany(Product, { through: OrderProducts });
 
 Product.belongsToMany(Order, { through: OrderProducts });
 
+// One to one mapping of attributes and category
+// Many attributes belong to one category
+// One attribute only belongs to one category
+
+Category.hasMany(Attribute, {foreignKey: 'categoryId'});
 
 module.exports = {
     Product, Category, User, Cart, CartProducts, Order, OrderProducts, Attribute, syncDbInOrder

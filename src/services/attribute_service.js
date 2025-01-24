@@ -50,9 +50,9 @@ class AttributeService {
 
     async updateAttribute(attributeId, data) {
         try{
-            const { categoryId, name, description, dataType, unit } = data;
+            const { categoryId, name, dataType, unit } = data;
 
-            const response = await this.repository.updateAttribute(attributeId, categoryId, name, description, dataType, unit);
+            const response = await this.repository.updateAttribute(attributeId, categoryId, name, dataType, unit);
             if(!response) {
                 // we were not able to find anything
                 console.log("AttributeService: ", attributeId, "not found");

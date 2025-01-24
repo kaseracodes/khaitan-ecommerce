@@ -3,7 +3,7 @@ const express = require('express');
 const { CategoryController } = require('../../controllers/index');
 
 
-const { createCategory, getAllCategories, getCategory, updateCategory, partialUpdateCategory, destroyCategory, getProductsForCategory }  = CategoryController;
+const { createCategory, getAllCategories, getCategory, updateCategory, partialUpdateCategory, destroyCategory, getProductsForCategory, getAttributesForCategory }  = CategoryController;
 const { createCategoryValidator } = require('../../middlewares/category_middleware');
 
 const categoryRouter = express.Router();
@@ -20,6 +20,7 @@ categoryRouter.get('/', getAllCategories);
 categoryRouter.get('/:id', getCategory);
 categoryRouter.delete('/:id', destroyCategory);
 categoryRouter.get('/:id/products', getProductsForCategory);
+categoryRouter.get('/:id/attributes', getAttributesForCategory);
 
 
 // GET /api/v1/categories/:id -> 

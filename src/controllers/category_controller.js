@@ -1,12 +1,12 @@
 const { StatusCodes, ReasonPhrases } = require('http-status-codes');
 
 const { CategoryService }  = require('../services/index');
-const { ProductRepository, CategoryRepository } = require('../repositories/index');
+const { ProductRepository, CategoryRepository, AttributeRepository } = require('../repositories/index');
 
 const errorResponse = require('../utils/error_response');
 const { response } = require('express');
 
-const categoryService = new CategoryService(new CategoryRepository(), new ProductRepository());
+const categoryService = new CategoryService(new CategoryRepository(), new ProductRepository(), new AttributeRepository());
 
 async function createCategory(req, res) {
 
@@ -68,6 +68,31 @@ async function getProductsForCategory(req, res) {
                     sucess: true,
                     error: {},
                     message: "Successfully fetched Products for the Category",
+                    data: response
+        });
+
+    } catch(error) {
+        console.log("CategoryController: Something went wrong", error);
+        console.log("Errorname", error.name)
+        return res
+                .status(error.statusCode)
+                .json(errorResponse(error.reason, error));
+    }
+
+}
+
+async function getAttributesForCategory(req, res) {
+
+    try {
+        
+        const response = await categoryService.getAttributesForCategory(req.params.id);
+    
+        return res
+                .status(StatusCodes.OK)
+                .json({
+                    sucess: true,
+                    error: {},
+                    message: ReasonPhrases.OK + " Attributes of Category",
                     data: response
         });
 
@@ -212,5 +237,6 @@ module.exports = {
     getAllCategories,
     getProductsForCategory,
     updateCategory,
-    partialUpdateCategory
+    partialUpdateCategory,
+    getAttributesForCategory
 }
