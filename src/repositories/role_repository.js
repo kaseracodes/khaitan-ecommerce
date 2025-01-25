@@ -116,6 +116,34 @@ class RoleRepository {
         }
     }
     
+    async removePermissionFromRole(roleId, permissionId) {
+        try {
+            const result = await RolePermissions.findOne({
+                where: {
+                    [Op.and]: [{ roleId }, { permissionId }],
+                },
+            });
+    
+            if (!result) {
+                throw new NotFoundError('RolePermission', '{roleId, permissionId}', `{${roleId}, ${permissionId}}`);
+            }
+    
+            await RolePermissions.destroy({
+                where: {
+                    roleId,
+                    permissionId,
+                },
+            });
+    
+            // Fetch the updated permissions for the role
+            const updatedPermissions = await this.getPermissionsForRole(roleId)
+            return updatedPermissions;
+
+        } catch (error) {
+            console.error("RoleRepository: Error in removePermissionFromRole", error);
+            throw error;
+        }
+    }
 
 }
 

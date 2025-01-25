@@ -124,6 +124,30 @@ class RoleService {
             throw new InternalServerError();
         }
     }
+
+    async removePermissionFromRole(roleId, permissionId) {
+        try {
+            const role = await this.repository.getRole(roleId);
+            if (!role) {
+                throw new NotFoundError('Role', 'id', roleId);
+            }
+    
+            // Optional: Validate if the permission exists
+            // const permission = await new PermissionRepository().getPermission(permissionId);
+            // if (!permission) {
+            //     throw new NotFoundError('Permission', 'id', permissionId);
+            // }
+    
+            const result = await this.repository.removePermissionFromRole(roleId, permissionId);
+            return result;
+        } catch (error) {
+            if (error.name === "NotFoundError") {
+                throw error;
+            }
+            console.log("RoleService: Error in removePermissionFromRole", error);
+            throw new InternalServerError();
+        }
+    }
     
 }
 

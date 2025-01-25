@@ -3,7 +3,7 @@ const express = require('express');
 const { RoleController } = require('../../controllers/index');
 
 
-const { getAllRoles, getRole, createRole, updateRole, destroyRole, addPermissionToRole, getPermissionsForRole}  = RoleController;
+const { getAllRoles, getRole, createRole, updateRole, destroyRole, addPermissionToRole, getPermissionsForRole, removePermissionFromRole}  = RoleController;
 
 const roleRouter = express.Router();
 
@@ -15,6 +15,7 @@ roleRouter.delete('/:id', destroyRole);
 roleRouter.patch('/:id', updateRole);
 roleRouter.post('/:roleId/permissions', addPermissionToRole);
 roleRouter.get('/:roleId/permissions', getPermissionsForRole);
+roleRouter.delete('/:roleId/permissions/:permissionId', removePermissionFromRole);
 
 
 

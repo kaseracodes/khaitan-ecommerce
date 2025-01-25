@@ -144,6 +144,25 @@ async function getPermissionsForRole(req, res) {
     }
 }
 
+async function removePermissionFromRole(req, res) {
+    try {
+        const { roleId, permissionId } = req.params;
+
+        const response = await roleService.removePermissionFromRole(roleId, permissionId);
+        return res.status(StatusCodes.OK).json({
+            success: true,
+            message: 'Permission removed from role successfully',
+            data: response,
+        });
+    } catch (error) {
+        console.log("RoleController: Something went wrong", error);
+        return res
+            .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+            .json(errorResponse(error.reason, error));
+    }
+}
+
+
 
 module.exports = {
     createRole,
@@ -152,5 +171,6 @@ module.exports = {
     updateRole,
     destroyRole,
     addPermissionToRole,
-    getPermissionsForRole
+    getPermissionsForRole,
+    removePermissionFromRole
 };
