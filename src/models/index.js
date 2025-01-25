@@ -7,6 +7,7 @@ const Order = require("./order");
 const OrderProducts = require("./order_products");
 const Permission = require("./permission");
 const Role = require("./role");
+const RolePermissions = require("./role_permissions");
 
 const { NODE_ENV } = require('../config/server_config');
 
@@ -15,6 +16,7 @@ async function syncDbInOrder() {
     await Product.sync();
     await Permission.sync();
     await Role.sync();
+    await RolePermissions.sync();
     await User.sync();
     await Cart.sync();
     await Order.sync();
@@ -53,6 +55,10 @@ Product.belongsToMany(Order, { through: OrderProducts });
 
 Role.belongsTo(Role, { as: 'ParentRole', foreignKey: 'parentRoleId' });
 
+Role.belongsToMany(Permission, { through: RolePermissions });
+
+Permission.belongsToMany(Role, { through: RolePermissions });
+
 
 module.exports = {
     Product, 
@@ -64,5 +70,6 @@ module.exports = {
     OrderProducts, 
     Permission,  
     Role,
+    RolePermissions,
     syncDbInOrder
 }

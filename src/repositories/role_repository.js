@@ -1,4 +1,5 @@
-const { Role } = require('../models/index');
+const { Role, Permission, RolePermissions } = require('../models/index');
+const { Op } = require('sequelize');
 
 class RoleRepository {
 
@@ -53,7 +54,6 @@ class RoleRepository {
         }
     }
     
-
     async destroyRole(roleId) {
         try {
             const response = await Role.destroy({
@@ -67,6 +67,35 @@ class RoleRepository {
             throw error;
         }
     }
+
+    async addPermissionToRole(roleId, permissionId) {
+        try {
+            const result = await RolePermissions.findOne({
+                where: {
+                    [Op.and]: [{ roleId }, { permissionId }],
+                },
+            });
+
+            // A permission should be added to a role only if its already added 
+            if (!result) {
+                const temp = await RolePermissions.create({ roleId, permissionId });
+                console.log(temp);
+            }
+
+            const response = await RolePermissions.findAll({
+                where: { roleId },
+            });
+
+            return {
+                roleId,
+                permissions: response,
+            };
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
+
 }
 
 module.exports = RoleRepository;

@@ -81,6 +81,31 @@ class RoleService {
             throw new InternalServerError();
         }
     }
+
+    async addPermissionToRole(roleId, permissionId) {
+        try {
+
+            const role = await this.repository.getRole(roleId);
+            if (!role) {
+                throw new NotFoundError('Role', 'id', roleId);
+            }
+
+            // Validate if the permission exists (optional)
+            // const permission = await new PermissionRepository().getPermission(permissionId);
+            // if (!permission) {
+            //     throw new NotFoundError('Permission', 'id', permissionId);
+            // }
+
+            const result = await this.repository.addPermissionToRole(roleId, permissionId);
+            return result;
+        } catch (error) {
+            if (error.name === "NotFoundError") {
+                throw error;
+            }
+            console.log("RoleService: Error in addPermissionToRole", error);
+            throw new InternalServerError();
+        }
+    }
 }
 
 module.exports = RoleService;
