@@ -126,11 +126,31 @@ async function addPermissionToRole(req, res) {
     }
 }
 
+async function getPermissionsForRole(req, res) {
+    try {
+        const { roleId } = req.params;
+
+        const permissions = await roleService.getPermissionsForRole(roleId);
+        return res.status(StatusCodes.OK).json({
+            success: true,
+            message: 'Permissions fetched successfully',
+            data: permissions,
+        });
+    } catch (error) {
+        console.log("RoleController: Something went wrong", error);
+        return res
+            .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+            .json(errorResponse(error.reason, error));
+    }
+}
+
+
 module.exports = {
     createRole,
     getAllRoles,
     getRole,
     updateRole,
     destroyRole,
-    addPermissionToRole
+    addPermissionToRole,
+    getPermissionsForRole
 };

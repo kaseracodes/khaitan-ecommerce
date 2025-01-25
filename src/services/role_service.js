@@ -106,6 +106,25 @@ class RoleService {
             throw new InternalServerError();
         }
     }
+
+    async getPermissionsForRole(roleId) {
+        try {
+            const role = await this.repository.getRole(roleId);
+            if (!role) {
+                throw new NotFoundError('Role', 'id', roleId);
+            }
+    
+            const permissions = await this.repository.getPermissionsForRole(roleId);
+            return permissions;
+        } catch (error) {
+            if (error.name === "NotFoundError") {
+                throw error;
+            }
+            console.log("RoleService: Error in getPermissionsForRole", error);
+            throw new InternalServerError();
+        }
+    }
+    
 }
 
 module.exports = RoleService;

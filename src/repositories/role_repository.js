@@ -1,5 +1,6 @@
 const { Role, Permission, RolePermissions } = require('../models/index');
 const { Op } = require('sequelize');
+const NotFoundError = require("../errors/not_found_error");
 
 class RoleRepository {
 
@@ -78,8 +79,7 @@ class RoleRepository {
 
             // A permission should be added to a role only if its already added 
             if (!result) {
-                const temp = await RolePermissions.create({ roleId, permissionId });
-                console.log(temp);
+                await RolePermissions.create({ roleId, permissionId });
             }
 
             const response = await RolePermissions.findAll({
@@ -95,6 +95,27 @@ class RoleRepository {
             throw error;
         }
     }
+
+    async getPermissionsForRole(roleId) {
+        try {
+            const permissions = await Role.findOne({
+                where: { id: roleId },
+                include: {
+                    model: Permission,
+                    through: {
+                        attributes: [] // Exclude all fields from the RolePermissions join table
+                        // If data for 'when a permission was added to a role" is needed, include createdAt attribute here.
+                    }
+                }
+            });
+    
+            return permissions;
+        } catch (error) {
+            console.error("RoleRepository: Error in getPermissionsForRole", error);
+            throw error;
+        }
+    }
+    
 
 }
 
