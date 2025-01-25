@@ -145,6 +145,44 @@ class RoleRepository {
         }
     }
 
+    async addPermissionsToRoleBulk(roleId, permissionIds) {
+        try {
+            // Bulk insert the permissions
+            const newPermissions = permissionIds.map((permissionId) => ({ roleId, permissionId }));
+            await RolePermissions.bulkCreate(newPermissions);
+    
+            // Fetch all permissions associated with the role after the operation
+            const updatedPermissions = await RolePermissions.findAll({
+                where: { roleId },
+            });
+    
+            return {
+                roleId,
+                permissions: updatedPermissions,
+            };
+        } catch (error) {
+            console.error("RoleRepository: Error in addPermissionsToRoleBulk", error);
+            throw error;
+        }
+    }
+
+    async getExistingPermissionIdsForRole(roleId, permissionIds) {
+        try {
+            const existingPermissions = await RolePermissions.findAll({
+                where: {
+                    roleId,
+                    permissionId: permissionIds,
+                },
+            });
+            const existingPermissionIds = existingPermissions.map((perm) => perm.permissionId);
+            return existingPermissionIds;
+        } catch (error) {
+            console.error("RoleRepository: Error in getExistingPermissionsForRole", error);
+            throw error;
+        }
+    }
+    
+
 }
 
 module.exports = RoleRepository;

@@ -162,6 +162,33 @@ async function removePermissionFromRole(req, res) {
     }
 }
 
+async function addPermissionsToRoleBulk(req, res) {
+    try {
+        const { roleId } = req.params;
+        const { permissionIds } = req.body; // Expecting an array of permission IDs
+
+        if (!Array.isArray(permissionIds)) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                success: false,
+                message: 'permissionIds must be an array of integers',
+            });
+        }
+
+        const response = await roleService.addPermissionsToRoleBulk(roleId, permissionIds);
+        return res.status(StatusCodes.CREATED).json({
+            success: true,
+            message: 'Permissions added to role successfully',
+            data: response,
+        });
+    } catch (error) {
+        console.log("RoleController: Something went wrong", error);
+        return res
+            .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+            .json(errorResponse(error.reason, error));
+    }
+}
+
+
 
 
 module.exports = {
@@ -172,5 +199,6 @@ module.exports = {
     destroyRole,
     addPermissionToRole,
     getPermissionsForRole,
-    removePermissionFromRole
+    removePermissionFromRole,
+    addPermissionsToRoleBulk
 };

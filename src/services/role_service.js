@@ -148,7 +148,34 @@ class RoleService {
             throw new InternalServerError();
         }
     }
+
+    async addPermissionsToRoleBulk(roleId, permissionIds) {
+        try {
+            const role = await this.repository.getRole(roleId);
+            if (!role) {
+                throw new NotFoundError('Role', 'id', roleId);
+            }
     
+            // Fetch existing permission ids for the role via the repository
+            const existingPermissionIds = await this.repository.getExistingPermissionIdsForRole(roleId, permissionIds);
+    
+            // Filter out already existing permissions
+            const newPermissionIds = permissionIds.filter((id) => !existingPermissionIds.includes(id));
+    
+            // Add only the new permissions via the repository
+            const result = await this.repository.addPermissionsToRoleBulk(roleId, newPermissionIds);
+    
+            return result;
+        } catch (error) {
+            if (error.name === "NotFoundError") {
+                throw error;
+            }
+            console.log("RoleService: Error in addPermissionsToRoleBulk", error);
+            throw new InternalServerError();
+        }
+    }
+    
+        
 }
 
 module.exports = RoleService;
