@@ -4,13 +4,13 @@ const NotFoundError = require("../errors/not_found_error");
 
 class ProductService {
 
-    constructor(respository) {
-        this.respository = respository
+    constructor(repository) {
+        this.repository = repository
     }
 
     async createProduct(product) {
         try {
-            const response = await this.respository.createProduct(
+            const response = await this.repository.createProduct(
                 product.title, product.description, product.price, product.categoryId, product.image);
             return response;
         } catch(error) {
@@ -30,7 +30,7 @@ class ProductService {
             if(query.max_price && isNaN(query.max_price)) {
                 throw new BadRequest("max_price", true);
             }
-            const response = await this.respository.getProducts(+query.limit, +query.offset, +query.min_price, +query.max_price);
+            const response = await this.repository.getProducts(+query.limit, +query.offset, +query.min_price, +query.max_price);
             return response;
         } catch(error) {
             if(error.name === "BadRequest") {
@@ -44,7 +44,7 @@ class ProductService {
     
     async getProduct(id) {
         try {
-            const response = await this.respository.getProduct(id);
+            const response = await this.repository.getProduct(id);
             if(!response) {
                 // we were not able to find anything
                 console.log("ProductService: ", id, "not found");
@@ -61,9 +61,30 @@ class ProductService {
         
     }
 
+    async addAttributeToProduct(data) {
+        try {
+
+            const { productId, attributeId, value } = data;
+
+            const response = this.repository.addAttributeToProduct(productId, attributeId, value);
+            if(!response) {
+                // we were not able to find anything
+                console.log("ProductService: ", productId, "not found");
+                throw new NotFoundError("Product", "id", productId);
+            }
+            return response;
+        } catch (error) {
+            if(error.name === "NotFoundError") {
+                throw error;
+            }
+            console.log("Category Service: ",error);
+            throw new InternalServerError();
+        }
+    }
+
     async destroyProduct(productId) {
         try {
-            const response = await this.respository.destroyProduct(productId);
+            const response = await this.repository.destroyProduct(productId);
             if(!response) {
                 console.log("ProductService: ", productId, "not found");
                 throw new NotFoundError("Product", "id", productId);

@@ -30,6 +30,27 @@ async function createProduct(req, res) {
 
 }
 
+async function addAttributeToProduct(req, res) {
+    try {
+
+        const response = await productService.addAttributeToProduct(req.body);
+
+        return res
+                .status(StatusCodes.CREATED)
+                .json({
+                    sucess: true,
+                    error: {},
+                    message: ReasonPhrases.CREATED + " Attribute for Product",
+                    data: response
+        });
+    } catch (error) {
+        console.log("ProductController: Something went wrong", error);
+        return res
+                .status(error.statusCode)
+                .json(errorResponse(error.reason, error));
+    }
+}
+
 async function getProducts(req, res) {
     try {
         const response = await productService.getProducts(req.query);
@@ -96,6 +117,7 @@ async function destroyProduct(req, res) {
 
 module.exports = {
     createProduct,
+    addAttributeToProduct,
     getProducts,
     getProduct,
     destroyProduct
