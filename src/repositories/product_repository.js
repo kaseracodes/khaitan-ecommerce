@@ -1,4 +1,4 @@
-const { Product, ProductsAttributes, Attribute, Category } = require('../models/index');
+const { Product, ProductAttributes, Attribute, Category } = require('../models/index');
 const { Op } = require('sequelize');
 class ProductRepository {
     async getProducts(limit, offset, min_price, max_price) {
@@ -52,7 +52,7 @@ class ProductRepository {
 
     async addAttributeToProduct(productId, attributeId, value) {
         try {
-            const response = await ProductsAttributes.create({
+            const response = await ProductAttributes.create({
                 productId, attributeId, value
             });
             return response;
@@ -115,7 +115,7 @@ class ProductRepository {
     async updateAttributeForProduct(productId, attributeId, value) {
         try {
 
-            const [affectedRows] = await ProductsAttributes.update(
+            const [affectedRows] = await ProductAttributes.update(
                 { value },
                 {
                     where: {
