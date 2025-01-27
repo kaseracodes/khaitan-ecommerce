@@ -90,6 +90,16 @@ class UserService {
         }
     }
 
+    async getAdminUsers() {
+        try {
+            const admins = await this.respository.getAdminUsers();
+            return admins;
+        } catch (error) {
+            console.log("UserService: Error fetching admin users", error);
+            throw error;
+        }
+    }
+
     async getUser(userId) {
         try {
             const response = await this.respository.getUser(userId);

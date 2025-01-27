@@ -1,6 +1,6 @@
 const { Op } = require("sequelize");
 
-const { User } = require('../models/index');
+const { User, Role } = require('../models/index');
 
 class UserRepository {
     async getUsers() {
@@ -24,6 +24,23 @@ class UserRepository {
             return unverifiedUsers;
         } catch (error) {
             console.log("UserRepository: Error fetching unverified users", error);
+            throw error;
+        }
+    }
+
+    async getAdminUsers() {
+        try {
+            // Fetch all users with roleId != 0 and isRoleVerified = true, include their roles
+            const admins = await User.findAll({
+                where: {
+                    roleId: { [Op.ne]: 0 }, 
+                    isRoleVerified: true
+                },
+                include: { model: Role}, 
+            });
+            return admins;
+        } catch (error) {
+            console.log("UserRepository: Error fetching admin users", error);
             throw error;
         }
     }

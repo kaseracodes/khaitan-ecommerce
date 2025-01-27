@@ -101,9 +101,27 @@ async function getRoleUnverifiedUsers(req, res) {
     }
 }
 
+async function getAdminUsers(req, res) {
+    try {
+        console.log("Inside controller");
+        const admins = await userService.getAdminUsers();
+        return res.status(StatusCodes.OK).json({
+            success: true,
+            error: {},
+            message: "Successfully fetched all verified admins along with their roles",
+            data: admins,
+        });
+    } catch (error) {
+        console.log("UserController: Error fetching admin users", error);
+        return res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).
+        json(errorResponse(error.reason || ReasonPhrases.INTERNAL_SERVER_ERROR, error));
+    }
+}
+
 module.exports = {
     createUser,
     signin,
     verifyUserRole,
-    getRoleUnverifiedUsers
+    getRoleUnverifiedUsers,
+    getAdminUsers
 }
