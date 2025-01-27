@@ -182,6 +182,15 @@ class RoleRepository {
         }
     }
     
+    async getAllRolePermissions() {
+        try {
+            const rolePermissions = await RolePermissions.findAll();
+            return rolePermissions;
+        } catch (error) {
+            console.error('Error in RoleRepository: getAllRolePermissions', error);
+            throw error;
+        }
+    }    
 
 }
 

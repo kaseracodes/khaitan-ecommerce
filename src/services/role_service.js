@@ -175,6 +175,15 @@ class RoleService {
         }
     }
     
+    async getAllRolePermissions() {
+        try {
+            const rolePermissions = await this.repository.getAllRolePermissions();
+            return rolePermissions;
+        } catch (error) {
+            console.error('RoleService: Error in getAllRolePermissions', error);
+            throw new InternalServerError();
+        }
+    }
         
 }
 

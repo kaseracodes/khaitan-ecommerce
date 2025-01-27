@@ -188,6 +188,21 @@ async function addPermissionsToRoleBulk(req, res) {
     }
 }
 
+async function getAllRolePermissions(req, res) {
+    try {
+        const rolePermissions = await roleService.getAllRolePermissions();
+        return res.status(StatusCodes.OK).json({
+            success: true,
+            message: 'Fetched all role permissions successfully',
+            data: rolePermissions,
+        });
+    } catch (error) {
+        console.error('RoleController: Error in getAllRolePermissions', error);
+        return res
+            .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+            .json(errorResponse(error.reason, error));
+    }
+}
 
 
 
@@ -200,5 +215,6 @@ module.exports = {
     addPermissionToRole,
     getPermissionsForRole,
     removePermissionFromRole,
-    addPermissionsToRoleBulk
+    addPermissionsToRoleBulk,
+    getAllRolePermissions
 };
