@@ -59,6 +59,10 @@ Role.belongsToMany(Permission, { through: RolePermissions });
 
 Permission.belongsToMany(Role, { through: RolePermissions });
 
+User.belongsTo(Role, { foreignKey: 'roleId'});
+
+Role.hasMany(User, { foreignKey: 'roleId', as: 'users' });
+
 
 module.exports = {
     Product, 

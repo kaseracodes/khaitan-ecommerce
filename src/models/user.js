@@ -40,8 +40,9 @@ const User = db.define('user', {
     roleId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        validate: {
-            isInt: true, 
+        references: {
+            model: 'roles',
+            key: 'id',
         },
     },
     isRoleVerified: {
