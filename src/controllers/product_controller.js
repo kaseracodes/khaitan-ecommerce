@@ -51,6 +51,27 @@ async function addAttributeToProduct(req, res) {
     }
 }
 
+async function getAllAttributesForProduct(req, res) {
+    try {
+
+        const response = await productService.getAllAttributesForProduct(req.params.id);
+
+        return res
+                .status(StatusCodes.OK)
+                .json({
+                    sucess: true,
+                    error: {},
+                    message: ReasonPhrases.OK + " Attributes for Product",
+                    data: response
+        });
+    } catch (error) {
+        console.log("ProductController: Something went wrong", error);
+        return res
+                .status(error.statusCode)
+                .json(errorResponse(error.reason, error));
+    }
+}
+
 async function getProducts(req, res) {
     try {
         const response = await productService.getProducts(req.query);
@@ -118,6 +139,7 @@ async function destroyProduct(req, res) {
 module.exports = {
     createProduct,
     addAttributeToProduct,
+    getAllAttributesForProduct,
     getProducts,
     getProduct,
     destroyProduct

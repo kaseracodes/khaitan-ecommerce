@@ -77,7 +77,26 @@ class ProductService {
             if(error.name === "NotFoundError") {
                 throw error;
             }
-            console.log("Category Service: ",error);
+            console.log("Product Service: ",error);
+            throw new InternalServerError();
+        }
+    }
+
+    async getAllAttributesForProduct(id) {
+        try {
+
+            const response = this.repository.getAllAttributesForProduct(id);
+            if(!response) {
+                // we were not able to find anything
+                console.log("ProductService: ", productId, "not found");
+                throw new NotFoundError("Product", "id", productId);
+            }
+            return response;
+        } catch (error) {
+            if(error.name === "NotFoundError") {
+                throw error;
+            }
+            console.log("Product Service: ",error);
             throw new InternalServerError();
         }
     }

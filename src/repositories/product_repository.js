@@ -1,4 +1,4 @@
-const { Product, ProductsAttributes } = require('../models/index');
+const { Product, ProductsAttributes, Attribute, Category } = require('../models/index');
 const { Op } = require('sequelize');
 class ProductRepository {
     async getProducts(limit, offset, min_price, max_price) {
@@ -58,6 +58,56 @@ class ProductRepository {
             return response;
         } catch(error) {
             console.log(error);
+            throw error;
+        }
+    }
+
+    async getAllAttributesForProduct(id) {
+        try {
+            const product = await Product.findByPk(id, {
+                include: [
+                    {
+                        model: Category,
+                        attributes: ["name"],
+                    },
+                    {
+                        model: Attribute,
+                        as: "attributes",
+                        through: {
+                            attributes: ["value"],
+                        },
+                    },
+                ],
+            });
+    
+            if (!product) {
+                console.error("ProductRepository: Product not found", id);
+                return null;
+            }
+
+            const productWithFormattedAttributes = {
+                id: product.id,
+                title: product.title,
+                description: product.description,
+                price: product.price,
+                image: product.image,
+                categoryId: product.categoryId,
+                createdAt: product.createdAt,
+                updatedAt: product.updatedAt,
+                categoryName: product.category?.name || null,
+                attributes: product.attributes.map(attr => ({
+                    id: attr.id,
+                    name: attr.name,
+                    dataType: attr.dataType,
+                    unit: attr.unit,
+                    value: attr.products_attributes.value,
+                })),
+            };
+    
+            return productWithFormattedAttributes;
+    
+        } catch (error) {
+            console.error("ProductRepository: Error fetching attributes for product", error);
             throw error;
         }
     }

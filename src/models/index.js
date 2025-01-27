@@ -56,8 +56,8 @@ Category.hasMany(Attribute, {foreignKey: 'categoryId'});
 // Many to Many mapping between products and attributes
 // Product has many attributes through products_attributes
 // Attribute belongs to many products through products_attributes
-Attribute.belongsToMany(Product, { through: ProductsAttributes });
-Product.belongsToMany(Attribute, { through: ProductsAttributes });
+Attribute.belongsToMany(Product, { through: ProductsAttributes, as: "products" });
+Product.belongsToMany(Attribute, { through: ProductsAttributes, as: "attributes" });
 
 module.exports = {
     Product, Category, User, Cart, CartProducts, Order, OrderProducts, Attribute, ProductsAttributes, syncDbInOrder
