@@ -6,7 +6,7 @@ const CartProducts = require("./cart_products");
 const Order = require("./order");
 const OrderProducts = require("./order_products");
 const Attribute = require("./attribute");
-const ProductsAttributes = require("./products_attributes");
+const ProductAttributes = require("./products_attributes");
 const { NODE_ENV } = require('../config/server_config');
 async function syncDbInOrder() {
     await Category.sync();
@@ -56,9 +56,9 @@ Category.hasMany(Attribute, {foreignKey: 'categoryId'});
 // Many to Many mapping between products and attributes
 // Product has many attributes through products_attributes
 // Attribute belongs to many products through products_attributes
-Attribute.belongsToMany(Product, { through: ProductsAttributes, as: "products" });
-Product.belongsToMany(Attribute, { through: ProductsAttributes, as: "attributes" });
+Attribute.belongsToMany(Product, { through: ProductAttributes, as: "products" });
+Product.belongsToMany(Attribute, { through: ProductAttributes, as: "attributes" });
 
 module.exports = {
-    Product, Category, User, Cart, CartProducts, Order, OrderProducts, Attribute, ProductsAttributes, syncDbInOrder
+    Product, Category, User, Cart, CartProducts, Order, OrderProducts, Attribute, ProductAttributes, syncDbInOrder
 }
