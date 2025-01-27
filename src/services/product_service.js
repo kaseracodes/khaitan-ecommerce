@@ -101,6 +101,32 @@ class ProductService {
         }
     }
 
+    async updateAttributeForProduct(productId, attributeId, value) {
+    
+        try {
+
+            console.log(productId);
+            console.log(attributeId);
+            console.log(value);
+            const response = await this.repository.updateAttributeForProduct(productId, attributeId, value);
+    
+            if (!response) {
+                console.error(`ProductService: Product ${productId} or Attribute ${attributeId} not found`);
+                throw new NotFoundError("Product or Attribute not found", { productId, attributeId });
+            }
+    
+            return response;
+        } catch (error) {
+            if (error.name === "NotFoundError") {
+                throw error;
+            }
+    
+            console.error("ProductService: Unexpected error while updating attribute", error);
+            throw new InternalServerError("Error updating attribute", { productId, attributeId, value });
+        }
+    }
+    
+
     async destroyProduct(productId) {
         try {
             const response = await this.repository.destroyProduct(productId);

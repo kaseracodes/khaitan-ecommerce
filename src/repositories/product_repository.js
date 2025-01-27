@@ -112,6 +112,36 @@ class ProductRepository {
         }
     }
 
+    async updateAttributeForProduct(productId, attributeId, value) {
+        try {
+
+            const [affectedRows] = await ProductsAttributes.update(
+                { value },
+                {
+                    where: {
+                        productId,
+                        attributeId,
+                    },
+                }
+            );
+
+            if (affectedRows === 0) {
+                console.error(
+                    `ProductRepository: Product with id ${productId} or Attribute with id ${attributeId} not found`
+                );
+                return null;
+            }
+
+            const productWithFormattedAttributes = this.getAllAttributesForProduct(productId, attributeId, value);
+    
+            return productWithFormattedAttributes;
+        } catch (error) {
+            console.error("ProductRepository: Error updating attribute for product", error);
+            throw error;
+        }
+    }
+        
+
     async destroyProduct(productId) {
         try {
             const response = await Product.destroy({

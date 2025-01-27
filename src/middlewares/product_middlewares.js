@@ -38,6 +38,18 @@ function createProductValidator(req, res, next) {
     next();
 }
 
+function updateAttributeForProductValidator(req, res, next) {
+    if (!req.body.value || !req.params.productId || !req.params.attributeId) {
+        return res  
+                .status(StatusCodes.BAD_REQUEST)
+                .json(errorResponse(ReasonPhrases.BAD_REQUEST, new BadRequest("ProductId or AttributeId")))
+    }
+    
+    // If everything looks good
+    next();
+}
+
 module.exports = {
-    createProductValidator
+    createProductValidator,
+    updateAttributeForProductValidator
 }
