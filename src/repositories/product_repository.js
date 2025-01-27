@@ -62,6 +62,16 @@ class ProductRepository {
         }
     }
 
+    async bulkAddAttributesToProduct(attributes) {
+        try {
+            const response = await ProductAttributes.bulkCreate(attributes);
+            return response;
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
+    }
+
     async getAllAttributesForProduct(id) {
         try {
             const product = await Product.findByPk(id, {

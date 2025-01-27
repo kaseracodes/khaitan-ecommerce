@@ -44,12 +44,39 @@ function updateAttributeForProductValidator(req, res, next) {
                 .status(StatusCodes.BAD_REQUEST)
                 .json(errorResponse(ReasonPhrases.BAD_REQUEST, new BadRequest("ProductId or AttributeId")))
     }
-    
+
     // If everything looks good
     next();
 }
 
+function bulkAddAttributesValidator(req, res, next) {
+    if (!req.params.id) {
+        return res
+                .status(StatusCodes.BAD_REQUEST)
+                .json(errorResponse(ReasonPhrases.BAD_REQUEST, new BadRequest("ProductId is required in URL")));
+    }
+
+    if (!req.body.attributes || !Array.isArray(req.body.attributes) || req.body.attributes.length === 0) {
+        return res  
+                .status(StatusCodes.BAD_REQUEST)
+                .json(errorResponse(ReasonPhrases.BAD_REQUEST, new BadRequest("Attributes array is required")));
+    }
+
+    for (const attr of req.body.attributes) {
+        if (!attr.attributeId || !attr.value) {
+            return res  
+                .status(StatusCodes.BAD_REQUEST)
+                .json(errorResponse(ReasonPhrases.BAD_REQUEST, new BadRequest("Each attribute must include attributeId and value")));
+        }
+    }
+
+    // If everything looks good
+    next();
+}
+
+
 module.exports = {
     createProductValidator,
-    updateAttributeForProductValidator
+    updateAttributeForProductValidator,
+    bulkAddAttributesValidator
 }

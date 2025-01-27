@@ -51,6 +51,33 @@ async function addAttributeToProduct(req, res) {
     }
 }
 
+async function bulkAddAttributesToProduct(req, res) {
+    try {
+        const productId = req.params.id;
+        const attributes = req.body.attributes.map(attr => ({
+            productId: productId,
+            attributeId: attr.attributeId,
+            value: attr.value
+        }));
+
+        const response = await productService.bulkAddAttributesToProduct(attributes);
+
+        return res
+                .status(StatusCodes.CREATED)
+                .json({
+                    success: true,
+                    error: {},
+                    message: ReasonPhrases.CREATED + " Bulk Attributes for Product",
+                    data: response
+                });
+    } catch (error) {
+        console.log("ProductController: Something went wrong", error);
+        return res
+                .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+                .json(errorResponse(error.reason || ReasonPhrases.INTERNAL_SERVER_ERROR, error));
+    }
+}
+
 async function getAllAttributesForProduct(req, res) {
     try {
 
@@ -163,6 +190,7 @@ async function destroyProduct(req, res) {
 module.exports = {
     createProduct,
     addAttributeToProduct,
+    bulkAddAttributesToProduct,
     getAllAttributesForProduct,
     updateAttributeForProduct,
     getProducts,

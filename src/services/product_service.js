@@ -82,6 +82,16 @@ class ProductService {
         }
     }
 
+    async bulkAddAttributesToProduct(attributes) {
+        try {
+            const response = await this.repository.bulkAddAttributesToProduct(attributes);
+            return response;
+        } catch (error) {
+            console.log("ProductService: ", error);
+            throw new InternalServerError();
+        }
+    }
+
     async getAllAttributesForProduct(id) {
         try {
 
