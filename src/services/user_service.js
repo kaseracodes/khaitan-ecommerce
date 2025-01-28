@@ -165,6 +165,20 @@ class UserService {
             throw new InternalServerError();
         }
     }
+
+    async changeUserRole(userId, newRoleId) {
+        try {
+            const updatedUser = await this.respository.updateUser(userId, { roleId: newRoleId, isRoleVerified: false });
+            return updatedUser;
+        } catch (error) {
+            console.log("UserService: Error changing user role", error);
+            if (error.name === "NotFoundError" ||  error.name === "ConflictError") {
+                throw error;
+            }
+            throw new InternalServerError();
+        }
+    }
+    
     
 }
 

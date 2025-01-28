@@ -133,11 +133,34 @@ async function getRegularUsers(req, res) {
     }
 }
 
+async function changeUserRole(req, res) {
+    try {
+        const { roleId } = req.body;
+        const { id } = req.params;
+
+        const response = await userService.changeUserRole(id, roleId);
+
+        return res.status(StatusCodes.OK).json({
+            success: true,
+            error: {},
+            message: "Successfully updated user role",
+            data: response,
+        });
+    } catch (error) {
+        console.log("UserController: Something went wrong", error);
+        return res
+            .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+            .json(errorResponse(error.reason || ReasonPhrases.INTERNAL_SERVER_ERROR, error));
+    }
+}
+
+
 module.exports = {
     createUser,
     signin,
     verifyUserRole,
     getRoleUnverifiedUsers,
     getAdminUsers,
-    getRegularUsers
+    getRegularUsers,
+    changeUserRole
 }
