@@ -6,6 +6,8 @@ const CartProducts = require("./cart_products");
 const Order = require("./order");
 const OrderProducts = require("./order_products");
 const Attribute = require("./attribute");
+const Color = require("./color");
+const Media = require("./media");
 const ProductAttributes = require("./products_attributes");
 const { NODE_ENV } = require('../config/server_config');
 async function syncDbInOrder() {
@@ -17,6 +19,8 @@ async function syncDbInOrder() {
     await CartProducts.sync();
     await OrderProducts.sync();
     await Attribute.sync();
+    await Color.sync();
+    await Media.sync();
 }
 
 Product.belongsTo(Category, {foreignKey: 'categoryId'});
@@ -48,7 +52,7 @@ Order.belongsToMany(Product, { through: OrderProducts });
 
 Product.belongsToMany(Order, { through: OrderProducts });
 
-// One to one mapping of attributes and category
+// One to many mapping of attributes and category
 // Many attributes belong to one category
 // One attribute only belongs to one category
 Category.hasMany(Attribute, {foreignKey: 'categoryId'});
@@ -59,6 +63,16 @@ Category.hasMany(Attribute, {foreignKey: 'categoryId'});
 Attribute.belongsToMany(Product, { through: ProductAttributes, as: "products" });
 Product.belongsToMany(Attribute, { through: ProductAttributes, as: "attributes" });
 
+// One to Many mapping between colors and media
+// Color has many media
+// Media belongs to one color
+Color.hasMany(Media, {foreignKey: 'colorId'});
+
+// One to Many mapping between colors and media
+// Product has many media
+// Media belongs to one product
+Product.hasMany(Media, {foreignKey: 'colorId'});
+
 module.exports = {
-    Product, Category, User, Cart, CartProducts, Order, OrderProducts, Attribute, ProductAttributes, syncDbInOrder
+    Product, Category, User, Cart, CartProducts, Order, OrderProducts, Attribute, ProductAttributes, Color, Media, syncDbInOrder
 }
