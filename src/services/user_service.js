@@ -69,12 +69,12 @@ class UserService {
         }
     }
 
-    async getAllUsers() {
+    async getRegularUsers() {
         try {
-            const response = await this.respository.getUsers();
+            const response = await this.respository.getRegularUsers();
             return response;
         } catch(error) {
-            console.log("UserService: ",error);
+            console.log("UserService: Error fetching regular users",error);
             throw new InternalServerError();
         }
         

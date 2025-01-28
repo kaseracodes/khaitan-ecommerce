@@ -3,12 +3,16 @@ const { Op } = require("sequelize");
 const { User, Role } = require('../models/index');
 
 class UserRepository {
-    async getUsers() {
+    async getRegularUsers() {
         try {
-            const response = await User.findAll();
-            return response;
+            const users = await User.findAll({
+                where: {
+                    roleId: 0, // users with roleId = 0 are regular users
+                }
+            });
+            return users;
         } catch(error) {
-            console.log(error);
+            console.log("UserRepository: Error fetching regular users", error);
             throw error;
         }
     }

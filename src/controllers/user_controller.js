@@ -103,7 +103,6 @@ async function getRoleUnverifiedUsers(req, res) {
 
 async function getAdminUsers(req, res) {
     try {
-        console.log("Inside controller");
         const admins = await userService.getAdminUsers();
         return res.status(StatusCodes.OK).json({
             success: true,
@@ -118,10 +117,27 @@ async function getAdminUsers(req, res) {
     }
 }
 
+async function getRegularUsers(req, res) {
+    try {
+        const users = await userService.getRegularUsers();
+        return res.status(StatusCodes.OK).json({
+            success: true,
+            error: {},
+            message: "Successfully fetched all regular users",
+            data: users,
+        });
+    } catch (error) {
+        console.log("UserController: Error fetching regular users", error);
+        return res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).
+        json(errorResponse(error.reason || ReasonPhrases.INTERNAL_SERVER_ERROR, error));
+    }
+}
+
 module.exports = {
     createUser,
     signin,
     verifyUserRole,
     getRoleUnverifiedUsers,
-    getAdminUsers
+    getAdminUsers,
+    getRegularUsers
 }
