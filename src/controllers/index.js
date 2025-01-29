@@ -6,6 +6,7 @@ const CartController = require('./cart_controller');
 const OrderController = require('./order_controller');
 const AttributeController = require('./attribute_controller');
 const ColorController = require('./color_controller');
+const MediaController = require('./media_controller');
 module.exports = {
     CategoryController,
     ProductController,
@@ -14,5 +15,6 @@ module.exports = {
     CartController,
     OrderController,
     AttributeController,
-    ColorController
+    ColorController,
+    MediaController
 }

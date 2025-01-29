@@ -6,6 +6,7 @@ const CartRepository = require('./cart_repository');
 const OrderRepository = require('./order_repository');
 const AttributeRepository = require('./attribute_repository');
 const ColorRepository = require('./color_repository');
+const MediaRepository = require('./media_repository');
 
 module.exports = {
     ProductRepository, 
@@ -15,5 +16,6 @@ module.exports = {
     CartRepository,
     OrderRepository,
     AttributeRepository,
-    ColorRepository
+    ColorRepository,
+    MediaRepository
 }
