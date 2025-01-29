@@ -81,7 +81,7 @@ class ColorService {
             if(error.name === "NotFoundError") {
                 throw error;
             }
-            console.log("ColorSerice: ",error);
+            console.log("ColorService: ",error);
             throw new InternalServerError();
         }
         
