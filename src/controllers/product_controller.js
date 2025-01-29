@@ -81,7 +81,7 @@ async function bulkAddAttributesToProduct(req, res) {
 async function getAllAttributesForProduct(req, res) {
     try {
 
-        const response = await productService.getAllAttributesForProduct(req.params.id);
+        const response = await productService.getAllAttributesForProduct(req.params.id, req.query);
 
         return res
                 .status(StatusCodes.OK)

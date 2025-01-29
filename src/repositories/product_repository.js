@@ -1,5 +1,5 @@
 const { Product, ProductAttributes, Attribute, Category } = require('../models/index');
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 class ProductRepository {
     async getProducts(limit, offset, min_price, max_price) {
         try {
@@ -72,7 +72,7 @@ class ProductRepository {
         }
     }
 
-    async getAllAttributesForProduct(id) {
+    async getAllAttributesForProduct(id, limit, offset) {
         try {
             const product = await Product.findByPk(id, {
                 include: [
@@ -95,6 +95,8 @@ class ProductRepository {
                 return null;
             }
 
+            const attributesPaginated = product.attributes.slice(offset || 0, (offset || 0) + (limit || product.attributes.length));
+
             const productWithFormattedAttributes = {
                 id: product.id,
                 title: product.title,
@@ -105,22 +107,22 @@ class ProductRepository {
                 createdAt: product.createdAt,
                 updatedAt: product.updatedAt,
                 categoryName: product.category?.name || null,
-                attributes: product.attributes.map(attr => ({
+                attributes: attributesPaginated.map(attr => ({
                     id: attr.id,
                     name: attr.name,
                     dataType: attr.dataType,
                     unit: attr.unit,
-                    value: attr.products_attributes.value,
+                    value: attr.ProductAttributes ? attr.ProductAttributes.value : null,
                 })),
             };
-    
+
             return productWithFormattedAttributes;
     
         } catch (error) {
             console.error("ProductRepository: Error fetching attributes for product", error);
             throw error;
         }
-    }
+    }         
 
     async updateAttributeForProduct(productId, attributeId, value) {
         try {

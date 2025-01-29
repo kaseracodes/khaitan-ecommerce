@@ -92,10 +92,12 @@ class ProductService {
         }
     }
 
-    async getAllAttributesForProduct(id) {
+    async getAllAttributesForProduct(id, query) {
         try {
-
-            const response = this.repository.getAllAttributesForProduct(id);
+            if((query.limit && isNaN(query.limit)) || (query.offset && isNaN(query.offset))) {
+                throw new BadRequest("limit, offset", true);
+            }
+            const response = this.repository.getAllAttributesForProduct(id, +query.limit, +query.offset);
             if(!response) {
                 // we were not able to find anything
                 console.log("ProductService: ", productId, "not found");
