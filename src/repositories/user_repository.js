@@ -7,7 +7,7 @@ class UserRepository {
         try {
             const users = await User.findAll({
                 where: {
-                    roleId: 0, // users with roleId = 0 are regular users
+                    roleId: 1, // users with roleId = 1 are regular users
                 }
             });
             return users;
@@ -22,7 +22,7 @@ class UserRepository {
             const unverifiedUsers = await User.findAll({
                 where: {
                     isRoleVerified: false,
-                    roleId: { [Op.ne]: 0 }
+                    roleId: { [Op.ne]: 1 }
                 },
             });
             return unverifiedUsers;
@@ -34,10 +34,10 @@ class UserRepository {
 
     async getAdminUsers() {
         try {
-            // Fetch all users with roleId != 0 and isRoleVerified = true, include their roles
+            // Fetch all users with roleId != 1 and isRoleVerified = true, include their roles
             const admins = await User.findAll({
                 where: {
-                    roleId: { [Op.ne]: 0 }, 
+                    roleId: { [Op.ne]: 1 }, 
                     isRoleVerified: true
                 },
                 include: { model: Role}, 

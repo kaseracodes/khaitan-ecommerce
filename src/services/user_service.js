@@ -51,8 +51,8 @@ class UserService {
             if(!doesPasswordMatch) {
                 throw new UnauthorizedError();
             }
-            // roleId 0 corresponds to a normal user.
-            if((user.roleId != 0) && (!user.isRoleVerified)){
+            // roleId 1 corresponds to a normal user.
+            if((user.roleId != 1) && (!user.isRoleVerified)){
                 throw new ForbiddenError('Admin Panel', 'signin', 'Role unverified')
             }
             return generateJWT({
