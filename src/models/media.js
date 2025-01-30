@@ -17,7 +17,7 @@ const Media = db.define('media', {
     },
     productId: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
             model: 'Products',
             key: 'id'
@@ -25,7 +25,7 @@ const Media = db.define('media', {
     },
     colorId: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
             model: 'colors',
             key: 'id'
