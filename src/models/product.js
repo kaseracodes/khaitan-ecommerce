@@ -16,10 +16,6 @@ const Product = db.define('product', {
         type: Sequelize.INTEGER,
         allowNull: false,
     },
-    image: {
-        type: Sequelize.STRING,
-        allowNull: false,
-    },
     categoryId: {
         type: Sequelize.INTEGER,
         allowNull: false,
