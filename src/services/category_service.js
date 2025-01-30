@@ -3,8 +3,8 @@ const NotFoundError = require("../errors/not_found_error");
 
 class CategoryService {
 
-    constructor(respository, productRepository, attributeRepository) {
-        this.respository = respository;
+    constructor(repository, productRepository, attributeRepository) {
+        this.repository = repository;
         this.productRepository = productRepository;
         this.attributeRepository = attributeRepository;
     }
@@ -37,9 +37,28 @@ class CategoryService {
         }
     }
 
+    async getAllProductsWithAttributesForCategory(categoryId, query) {
+        try {
+    
+            if((query.limit && isNaN(query.limit)) || (query.offset && isNaN(query.offset))) {
+                throw new BadRequest("limit, offset", true);
+            }
+
+            const response = await this.productRepository.getAllProductsWithAttributesForCategory(categoryId, +query.limit, +query.offset);
+
+            return response;
+        } catch (error) {
+            if (error.name === "BadRequest") {
+                throw error;
+            }
+            console.error("CategoryService: ", error);
+            throw new InternalServerError();
+        }
+    }
+
     async createCategory(category) {
         try {
-            const response = await this.respository.createCategory(category.name, category.description);
+            const response = await this.repository.createCategory(category.name, category.description);
             return response;
         } catch(error) {
             console.log("CategorySerice: ",error);
@@ -50,7 +69,7 @@ class CategoryService {
 
     async getAllCategories() {
         try {
-            const response = await this.respository.getCategories();
+            const response = await this.repository.getCategories();
             return response;
         } catch(error) {
             console.log("CategorySerice: ",error);
@@ -61,7 +80,7 @@ class CategoryService {
 
     async getCategory(categoryId) {
         try {
-            const response = await this.respository.getCategory(categoryId);
+            const response = await this.repository.getCategory(categoryId);
             if(!response) {
                 // we were not able to find anything
                 console.log("CategoryService: ", categoryId, "not found");
@@ -80,7 +99,7 @@ class CategoryService {
 
     async updateCategory(categoryId, name, description) {
         try{
-            const response = await this.respository.updateCategory(categoryId, name, description);
+            const response = await this.repository.updateCategory(categoryId, name, description);
             if(!response) {
                 // we were not able to find anything
                 console.log("CategoryService: ", categoryId, "not found");
@@ -98,7 +117,7 @@ class CategoryService {
 
     async partialUpdateCategory(categoryId, name, description) {
         try{
-            const response = await this.respository.updateCategory(categoryId, name, description);
+            const response = await this.repository.updateCategory(categoryId, name, description);
             if(!response) {
                 // we were not able to find anything
                 console.log("CategoryService: ", categoryId, "not found");
@@ -116,7 +135,7 @@ class CategoryService {
 
     async destroyCategory(categoryId) {
         try {
-            const response = await this.respository.destroyCategory(categoryId);
+            const response = await this.repository.destroyCategory(categoryId);
             if(!response) {
                 // we were not able to find anything
                 console.log("CategoryService: ", categoryId, "not found");

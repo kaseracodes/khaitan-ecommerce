@@ -180,6 +180,65 @@ class ProductRepository {
         }
     }
     
+    async getAllProductsWithAttributesForCategory(categoryId, limit, offset) {
+        try {
+            const filter = {};
+            if(limit) {
+                filter.limit = limit;
+            }
+            if(offset) {
+                filter.offset = offset;
+            }
+
+            const products = await Product.findAll({
+                where: { categoryId },
+                include: [
+                    {
+                        model: Category,
+                        attributes: ["name"],
+                    },
+                    {
+                        model: Attribute,
+                        as: "attributes",
+                        through: { attributes: ["value"] },
+                    },
+                ],
+                ...filter
+            });
+    
+            if (!products || products.length === 0) {
+                throw new NotFoundError(`No products found for category ${categoryId}`);
+            }
+
+            const categoryName = products[0].category.name;
+    
+            const productsList = products.map(product => ({
+                id: product.id,
+                title: product.title,
+                description: product.description,
+                price: product.price,
+                image: product.image,
+                createdAt: product.createdAt,
+                updatedAt: product.updatedAt,
+                attributes: product.attributes.map(attr => ({
+                    id: attr.id,
+                    name: attr.name,
+                    dataType: attr.dataType,
+                    unit: attr.unit,
+                    value: attr.products_attributes.value,
+                })),
+            }));
+
+            return {
+                categoryId,
+                categoryName,
+                productsList
+            };
+        } catch (error) {
+            console.error("CategoryRepository: Error fetching products with attributes", error);
+            throw error;
+        }
+    };
 
     async updateAttributeForProduct(productId, attributeId, value) {
         try {

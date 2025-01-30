@@ -106,7 +106,21 @@ async function getAttributesForCategory(req, res) {
 
 }
 
+async function getAllProductsWithAttributesForCategory(req, res) {
+    try {
+        const response = await categoryService.getAllProductsWithAttributesForCategory(req.params.id, req.query);
 
+        return res.status(StatusCodes.OK).json({
+            success: true,
+            error: {},
+            message: ReasonPhrases.OK + " Products with Attributes for Category",
+            data: response
+        });
+    } catch (error) {
+        console.error("CategoryController: Something went wrong", error);
+        return res.status(error.statusCode || 500).json(errorResponse(error.reason, error));
+    }
+}
 
 async function getCategory(req, res) {
 
@@ -238,5 +252,6 @@ module.exports = {
     getProductsForCategory,
     updateCategory,
     partialUpdateCategory,
-    getAttributesForCategory
+    getAttributesForCategory,
+    getAllProductsWithAttributesForCategory
 }
