@@ -64,13 +64,13 @@ class ProductService {
     async addAttributeToProduct(data) {
         try {
 
-            const { productId, attributeId, value } = data;
+            const { id, attributeId, value } = data;
 
-            const response = this.repository.addAttributeToProduct(productId, attributeId, value);
+            const response = await this.repository.addAttributeToProduct(id, attributeId, value);
             if(!response) {
                 // we were not able to find anything
-                console.log("ProductService: ", productId, "not found");
-                throw new NotFoundError("Product", "id", productId);
+                console.log("ProductService: ", id, "not found");
+                throw new NotFoundError("Product", "id", id);
             }
             return response;
         } catch (error) {
@@ -92,16 +92,13 @@ class ProductService {
         }
     }
 
-    async getAllAttributesForProduct(id, query) {
+    async getAllAttributesForProduct(id) {
         try {
-            if((query.limit && isNaN(query.limit)) || (query.offset && isNaN(query.offset))) {
-                throw new BadRequest("limit, offset", true);
-            }
-            const response = this.repository.getAllAttributesForProduct(id, +query.limit, +query.offset);
+            const response = await this.repository.getAllAttributesForProduct(id);
             if(!response) {
                 // we were not able to find anything
-                console.log("ProductService: ", productId, "not found");
-                throw new NotFoundError("Product", "id", productId);
+                console.log("ProductService: ", id, "not found");
+                throw new NotFoundError("Product", "id", id);
             }
             return response;
         } catch (error) {
@@ -113,18 +110,31 @@ class ProductService {
         }
     }
 
-    async updateAttributeForProduct(productId, attributeId, value) {
+    async getAllProductsWithAttributes(query) {
+        try {
+            if((query.limit && isNaN(query.limit)) || (query.offset && isNaN(query.offset))) {
+                throw new BadRequest("limit, offset", true);
+            }
+            const response = await this.repository.getAllProductsWithAttributes(+query.limit, +query.offset);
+            
+            return response;
+        } catch (error) {
+            if(error.name === "BadRequest") {
+                throw error;
+            }
+            console.log("ProductService: ",error);
+            throw new InternalServerError();
+        }
+    }
+
+    async updateAttributeForProduct(id, attributeId, value) {
     
         try {
-
-            console.log(productId);
-            console.log(attributeId);
-            console.log(value);
-            const response = await this.repository.updateAttributeForProduct(productId, attributeId, value);
+            const response = await this.repository.updateAttributeForProduct(id, attributeId, value);
     
             if (!response) {
-                console.error(`ProductService: Product ${productId} or Attribute ${attributeId} not found`);
-                throw new NotFoundError("Product or Attribute not found", { productId, attributeId });
+                console.error(`ProductService: Product ${id} or Attribute ${attributeId} not found`);
+                throw new NotFoundError("Product or Attribute not found", { id, attributeId });
             }
     
             return response;
@@ -134,17 +144,17 @@ class ProductService {
             }
     
             console.error("ProductService: Unexpected error while updating attribute", error);
-            throw new InternalServerError("Error updating attribute", { productId, attributeId, value });
+            throw new InternalServerError("Error updating attribute", { id, attributeId, value });
         }
     }
     
 
-    async destroyProduct(productId) {
+    async destroyProduct(id) {
         try {
-            const response = await this.repository.destroyProduct(productId);
+            const response = await this.repository.destroyProduct(id);
             if(!response) {
-                console.log("ProductService: ", productId, "not found");
-                throw new NotFoundError("Product", "id", productId);
+                console.log("ProductService: ", id, "not found");
+                throw new NotFoundError("Product", "id", id);
             }
             return response;
         } catch(error) {

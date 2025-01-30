@@ -72,7 +72,7 @@ class ProductRepository {
         }
     }
 
-    async getAllAttributesForProduct(id, limit, offset) {
+    async getAllAttributesForProduct(id) {
         try {
             const product = await Product.findByPk(id, {
                 include: [
@@ -95,8 +95,6 @@ class ProductRepository {
                 return null;
             }
 
-            const attributesPaginated = product.attributes.slice(offset || 0, (offset || 0) + (limit || product.attributes.length));
-
             const productWithFormattedAttributes = {
                 id: product.id,
                 title: product.title,
@@ -107,12 +105,12 @@ class ProductRepository {
                 createdAt: product.createdAt,
                 updatedAt: product.updatedAt,
                 categoryName: product.category?.name || null,
-                attributes: attributesPaginated.map(attr => ({
+                attributes: product.attributes.map(attr => ({
                     id: attr.id,
                     name: attr.name,
                     dataType: attr.dataType,
                     unit: attr.unit,
-                    value: attr.ProductAttributes ? attr.ProductAttributes.value : null,
+                    value: attr.products_attributes.value,
                 })),
             };
 
@@ -122,7 +120,66 @@ class ProductRepository {
             console.error("ProductRepository: Error fetching attributes for product", error);
             throw error;
         }
-    }         
+    }     
+    
+    async getAllProductsWithAttributes(limit, offset) {
+        try {
+            const filter = {};
+            if(limit) {
+                filter.limit = limit;
+            }
+            if(offset) {
+                filter.offset = offset;
+            }
+    
+            const products = await Product.findAll({
+                include: [
+                    {
+                        model: Category,
+                        attributes: ["name"],
+                    },
+                    {
+                        model: Attribute,
+                        as: "attributes",
+                        through: {
+                            attributes: ["value"],
+                        },
+                    },
+                ],
+                ...filter
+            });
+ 
+            if (!products || products.length === 0) {
+                console.error("ProductRepository: No products found");
+                return [];
+            }
+
+            const productsWithFormattedAttributes = products.map(product => ({
+                id: product.id,
+                title: product.title,
+                description: product.description,
+                price: product.price,
+                image: product.image,
+                categoryId: product.categoryId,
+                createdAt: product.createdAt,
+                updatedAt: product.updatedAt,
+                categoryName: product.category?.name || null,
+                attributes: product.attributes.map(attr => ({
+                    id: attr.id,
+                    name: attr.name,
+                    dataType: attr.dataType,
+                    unit: attr.unit,
+                    value: attr.products_attributes.value,
+                })),
+            }));
+    
+            return productsWithFormattedAttributes;
+        } catch (error) {
+            console.error("ProductRepository: Error fetching products with attributes", error);
+            throw error;
+        }
+    }
+    
 
     async updateAttributeForProduct(productId, attributeId, value) {
         try {

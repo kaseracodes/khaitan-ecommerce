@@ -81,7 +81,28 @@ async function bulkAddAttributesToProduct(req, res) {
 async function getAllAttributesForProduct(req, res) {
     try {
 
-        const response = await productService.getAllAttributesForProduct(req.params.id, req.query);
+        const response = await productService.getAllAttributesForProduct(req.params.id);
+
+        return res
+                .status(StatusCodes.OK)
+                .json({
+                    sucess: true,
+                    error: {},
+                    message: ReasonPhrases.OK + " Attributes for Product",
+                    data: response
+        });
+    } catch (error) {
+        console.log("ProductController: Something went wrong", error);
+        return res
+                .status(error.statusCode)
+                .json(errorResponse(error.reason, error));
+    }
+}
+
+async function getAllProductsWithAttributes(req, res) {
+    try {
+
+        const response = await productService.getAllProductsWithAttributes(req.query);
 
         return res
                 .status(StatusCodes.OK)
@@ -192,6 +213,7 @@ module.exports = {
     addAttributeToProduct,
     bulkAddAttributesToProduct,
     getAllAttributesForProduct,
+    getAllProductsWithAttributes,
     updateAttributeForProduct,
     getProducts,
     getProduct,
