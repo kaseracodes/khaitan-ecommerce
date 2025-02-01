@@ -56,6 +56,25 @@ class CategoryService {
         }
     }
 
+    async getAllProductsWithAttributesAndMediaForCategory(categoryId, query) {
+        try {
+    
+            if((query.limit && isNaN(query.limit)) || (query.offset && isNaN(query.offset))) {
+                throw new BadRequest("limit, offset", true);
+            }
+
+            const response = await this.productRepository.getAllProductsWithAttributesAndMediaForCategory(categoryId, +query.limit, +query.offset);
+
+            return response;
+        } catch (error) {
+            if (error.name === "BadRequest") {
+                throw error;
+            }
+            console.error("CategoryService: ", error);
+            throw new InternalServerError();
+        }
+    }
+
     async createCategory(category) {
         try {
             const response = await this.repository.createCategory(category.name, category.description);
