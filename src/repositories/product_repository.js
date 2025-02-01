@@ -240,6 +240,83 @@ class ProductRepository {
         }
     };
 
+    async getAllProductsWithAttributesAndMedia(limit, offset) {
+        try {
+            const filter = {};
+            if(limit) {
+                filter.limit = limit;
+            }
+            if(offset) {
+                filter.offset = offset;
+            }
+    
+            const products = await Product.findAll({
+                include: [
+                    {
+                        model: Category,
+                        attributes: ["name"],
+                    },
+                    {
+                        model: Attribute,
+                        as: "attributes",
+                        through: {
+                            attributes: ["value"],
+                        },
+                    },
+                    {
+                        model: Media,
+                        as: "media",
+                        include: [
+                            {
+                                model: Color,
+                                as: "color",
+                                attributes: ["colorName", "colorHex"],
+                            },
+                        ],
+                    }
+                ],
+                ...filter
+            });
+ 
+            if (!products || products.length === 0) {
+                console.error("ProductRepository: No products found");
+                return [];
+            }
+
+            const productsWithFormattedAttributes = products.map(product => ({
+                id: product.id,
+                title: product.title,
+                description: product.description,
+                price: product.price,
+                image: product.image,
+                categoryId: product.categoryId,
+                createdAt: product.createdAt,
+                updatedAt: product.updatedAt,
+                categoryName: product.category?.name || null,
+                attributes: product.attributes.map(attr => ({
+                    id: attr.id,
+                    name: attr.name,
+                    dataType: attr.dataType,
+                    unit: attr.unit,
+                    value: attr.products_attributes.value,
+                })),
+                media: product.media.map(med => ({
+                    id: med.id,
+                    type: med.type,
+                    url: med.url,
+                    colorId: med.colorId,
+                    colorName: med.color.colorName,
+                    colorHex: med.color.colorHex
+                })),
+            }));
+    
+            return productsWithFormattedAttributes;
+        } catch (error) {
+            console.error("ProductRepository: Error fetching products with attributes", error);
+            throw error;
+        }
+    }
+
     async getProductWithAttributesAndMedia(productdId) {
         try {
             const product = await Product.findByPk(productdId, {

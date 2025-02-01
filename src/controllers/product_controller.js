@@ -120,6 +120,27 @@ async function getAllProductsWithAttributes(req, res) {
     }
 }
 
+async function getAllProductsWithAttributesAndMedia(req, res) {
+    try {
+
+        const response = await productService.getAllProductsWithAttributesAndMedia(req.query);
+
+        return res
+                .status(StatusCodes.OK)
+                .json({
+                    sucess: true,
+                    error: {},
+                    message: ReasonPhrases.OK + " Attributes and Media for Product",
+                    data: response
+        });
+    } catch (error) {
+        console.log("ProductController: Something went wrong", error);
+        return res
+                .status(error.statusCode)
+                .json(errorResponse(error.reason, error));
+    }
+}
+
 async function getProductWithAttributesAndMedia(req, res) {
     try {
         const response = await productService.getProductWithAttributesAndMedia(req.params.id);
@@ -233,6 +254,7 @@ module.exports = {
     bulkAddAttributesToProduct,
     getAllAttributesForProduct,
     getAllProductsWithAttributes,
+    getAllProductsWithAttributesAndMedia,
     getProductWithAttributesAndMedia,
     updateAttributeForProduct,
     getProducts,
