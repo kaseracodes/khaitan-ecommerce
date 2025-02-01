@@ -1,4 +1,4 @@
-const { Product, ProductAttributes, Attribute, Category } = require('../models/index');
+const { Product, ProductAttributes, Attribute, Category, Media, Color } = require('../models/index');
 const { Op, where } = require('sequelize');
 class ProductRepository {
     async getProducts(limit, offset, min_price, max_price) {
@@ -239,6 +239,75 @@ class ProductRepository {
             throw error;
         }
     };
+
+    async getProductWithAttributesAndMedia(productdId) {
+        try {
+            const product = await Product.findByPk(productdId, {
+                include: [
+                    {
+                        model: Category,
+                        attributes: ["name"],
+                    },
+                    {
+                        model: Attribute,
+                        as: "attributes",
+                        through: {
+                            attributes: ["value"],
+                        },
+                    },
+                    {
+                        model: Media,
+                        as: "media",
+                        include: [
+                            {
+                                model: Color,
+                                as: "color",
+                                attributes: ["colorName", "colorHex"],
+                            },
+                        ],
+                    }
+                ],
+            });
+    
+            if (!product) {
+                console.error("ProductRepository: Product not found", id);
+                return null;
+            }
+
+            const productWithFormattedAttributes = {
+                id: product.id,
+                title: product.title,
+                description: product.description,
+                price: product.price,
+                image: product.image,
+                categoryId: product.categoryId,
+                createdAt: product.createdAt,
+                updatedAt: product.updatedAt,
+                categoryName: product.category?.name || null,
+                attributes: product.attributes.map(attr => ({
+                    id: attr.id,
+                    name: attr.name,
+                    dataType: attr.dataType,
+                    unit: attr.unit,
+                    value: attr.products_attributes.value,
+                })),
+                media: product.media.map(med => ({
+                    id: med.id,
+                    type: med.type,
+                    url: med.url,
+                    colorId: med.colorId,
+                    colorName: med.color.colorName,
+                    colorHex: med.color.colorHex
+                })),
+            };
+
+            return productWithFormattedAttributes;
+    
+        } catch (error) {
+            console.error("ProductRepository: Error fetching attributes for product", error);
+            throw error;
+        }
+    }
 
     async updateAttributeForProduct(productId, attributeId, value) {
         try {

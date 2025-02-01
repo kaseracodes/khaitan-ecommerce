@@ -68,10 +68,14 @@ Product.belongsToMany(Attribute, { through: ProductAttributes, as: "attributes" 
 // Media belongs to one color
 Color.hasMany(Media, {foreignKey: 'colorId'});
 
+Media.belongsTo(Color, {foreignKey: 'colorId'});
+
 // One to Many mapping between colors and media
 // Product has many media
 // Media belongs to one product
-Product.hasMany(Media, {foreignKey: 'colorId'});
+Product.hasMany(Media, {foreignKey: 'productId'});
+
+Media.belongsTo(Product, {foreignKey: 'productId'});
 
 module.exports = {
     Product, Category, User, Cart, CartProducts, Order, OrderProducts, Attribute, ProductAttributes, Color, Media, syncDbInOrder

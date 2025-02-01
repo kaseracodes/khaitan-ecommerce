@@ -127,6 +127,20 @@ class ProductService {
         }
     }
 
+    async getProductWithAttributesAndMedia(id) {
+        try {
+            const response = await this.repository.getProductWithAttributesAndMedia(id);
+            
+            return response;
+        } catch (error) {
+            if(error.name === "BadRequest") {
+                throw error;
+            }
+            console.log("ProductService: ",error);
+            throw new InternalServerError();
+        }
+    }
+
     async updateAttributeForProduct(id, attributeId, value) {
     
         try {
