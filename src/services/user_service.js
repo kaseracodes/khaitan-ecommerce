@@ -2,6 +2,7 @@ const BadRequest = require("../errors/bad_request_error");
 const ConflictError = require("../errors/conflict_error");
 const InternalServerError = require("../errors/internal_server_error");
 const NotFoundError = require("../errors/not_found_error");
+const ForbiddenError = require("../errors/forbidden_error");
 const bcrypt = require('bcrypt');
 const UnauthorizedError = require("../errors/unauthorized_error");
 const { generateJWT } = require("../utils/auth");
@@ -15,7 +16,7 @@ class UserService {
 
     async createUser(user) {
         try {
-            const response = await this.respository.createUser(user.email, user.password);
+            const response = await this.respository.createUser(user.email, user.password, user.name, user.phoneNumber, user.roleId);
             await this.cartRepository.createCart(response.id);
             return response;
         } catch(error) {
@@ -50,13 +51,52 @@ class UserService {
             if(!doesPasswordMatch) {
                 throw new UnauthorizedError();
             }
-            return generateJWT({email: user.email, id: user.id});
+            // roleId 1 corresponds to a normal user.
+            if((user.roleId != 1) && (!user.isRoleVerified)){
+                throw new ForbiddenError('Admin Panel', 'signin', 'Role unverified')
+            }
+            return generateJWT({
+                email: user.email, 
+                id: user.id, 
+                roleId: user.roleId
+            });
         } catch(error) {
             console.log("UserService: ",error);
-            if(error.name === "NotFoundError" || error.name === "UnauthorizedError") {
+            if(error.name === "NotFoundError" || error.name === "UnauthorizedError" || error.name === "ForbiddenError") {
                 throw error;
             }
             throw new InternalServerError();
+        }
+    }
+
+    async getRegularUsers() {
+        try {
+            const response = await this.respository.getRegularUsers();
+            return response;
+        } catch(error) {
+            console.log("UserService: Error fetching regular users",error);
+            throw new InternalServerError();
+        }
+        
+    }
+
+    async getRoleUnverifiedUsers() {
+        try {
+            const users = await this.respository.getRoleUnverifiedUsers();
+            return users;
+        } catch (error) {
+            console.log("UserService: Error fetching unverified users", error);
+            throw new InternalServerError();
+        }
+    }
+
+    async getAdminUsers() {
+        try {
+            const admins = await this.respository.getAdminUsers();
+            return admins;
+        } catch (error) {
+            console.log("UserService: Error fetching admin users", error);
+            throw error;
         }
     }
 
@@ -97,6 +137,48 @@ class UserService {
         }
         
     }
+
+    async verifyUserRole(req) {
+        try {
+            var currentUser = req.user;
+            const requestedUser = await this.respository.getUser(req.params.id);
+            if (!requestedUser) {
+                throw new NotFoundError("User", "id", req.params.id);
+            }
+            // current user should only be allowed to verify the requested user if his role is a direct ancestor of the requested role
+            // if ( !isDirectAncestor(currentUser.roleId, requestedUser.roleId) ){
+            //     throw new ForbiddenError('User.isRoleVerified', 'update', `You are not a direct ancestor of ${requestedUser.requestedRoleId}`);
+            // }
+            if (!requestedUser.isRoleVerified){
+                const updatedUser = await this.respository.updateUser(requestedUser.id, { isRoleVerified: true });
+                return updatedUser;
+            }
+            else{
+                const updatedUser = await this.respository.updateUser(requestedUser.id, { isRoleVerified: false });
+                return updatedUser;
+            }
+        } catch (error) {
+            if (error.name === "NotFoundError" || error.name === "ForbiddenError") {
+                throw error;
+            }
+            console.log("UserService: ", error);
+            throw new InternalServerError();
+        }
+    }
+
+    async changeUserRole(userId, newRoleId) {
+        try {
+            const updatedUser = await this.respository.updateUser(userId, { roleId: newRoleId, isRoleVerified: false });
+            return updatedUser;
+        } catch (error) {
+            console.log("UserService: Error changing user role", error);
+            if (error.name === "NotFoundError" ||  error.name === "ConflictError") {
+                throw error;
+            }
+            throw new InternalServerError();
+        }
+    }
+    
     
 }
 

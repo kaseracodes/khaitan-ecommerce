@@ -7,6 +7,9 @@ const OrderController = require('./order_controller');
 const AttributeController = require('./attribute_controller');
 const ColorController = require('./color_controller');
 const MediaController = require('./media_controller');
+const PermissionController = require('./permission_controller');
+const RoleController = require('./role_controller');
+
 module.exports = {
     CategoryController,
     ProductController,
@@ -17,4 +20,6 @@ module.exports = {
     AttributeController,
     ColorController,
     MediaController
+    PermissionController,
+    RoleController
 }

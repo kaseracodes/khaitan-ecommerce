@@ -8,6 +8,8 @@ const ApiRouter = require('./routes/api_router');
 
 const db = require('./config/db_config');
 const { syncDbInOrder } = require('./models');
+const { accessControlCache } = require("./cache");
+const { registerHooks } = require('./models/hooks');
 
 const app = express();
 
@@ -25,14 +27,17 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use('/api', ApiRouter); // if any req comes with url starting with /api
 
 app.listen(PORT, async () => {
-    console.log(`Server for Shopcart is Up ${PORT}`);
+    console.log(`Server for Khaitan Ecommerce is Up ${PORT}`);
     if(NODE_ENV == 'development') {
         if(DB_FORCE == true) {
             await db.sync({ force: true});
+            console.log("Database synced with `force: true`");
         } else if (DB_ALTER == true) {
             await db.sync({ alter: true});
+            console.log("Database synced with `alter: true`");
         } else {
             await db.sync();
+            console.log("Database synced without force or alter");
         }
     }
     if(NODE_ENV == 'production') {
@@ -41,6 +46,8 @@ app.listen(PORT, async () => {
     }
    
     console.log('DB Connected');
+    await accessControlCache.syncCache();
+    registerHooks();
 
     // const c = await Category.findByPk(2);
 
