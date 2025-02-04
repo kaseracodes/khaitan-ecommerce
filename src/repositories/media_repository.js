@@ -19,17 +19,7 @@ class MediaRepository {
                 return [];
             }
     
-            return mediaItems.map(item => ({
-                id: item.id,
-                name: item.name,
-                utility: item.utility,
-                url: item.url,
-                colorId: item.colorId,
-                productId: item.productId,
-                redirectURL: item.redirectURL,
-                createdAt: item.createdAt,
-                updatedAt: item.updatedAt
-            }));
+            return mediaItems;
     
         } catch (error) {
             console.error("MediaRepository: Error fetching media", error);
