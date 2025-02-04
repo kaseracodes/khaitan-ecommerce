@@ -60,17 +60,6 @@ class UserService {
         }
     }
 
-    async getAllUsers() {
-        try {
-            const response = await this.respository.getUsers();
-            return response;
-        } catch(error) {
-            console.log("UserService: ",error);
-            throw new InternalServerError();
-        }
-        
-    }
-
     async getUser(userId) {
         try {
             const response = await this.respository.getUser(userId);

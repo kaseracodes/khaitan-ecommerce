@@ -1,16 +1,6 @@
 const { User } = require('../models/index');
 
 class UserRepository {
-    async getUsers() {
-        try {
-            const response = await User.findAll();
-            return response;
-        } catch(error) {
-            console.log(error);
-            throw error;
-        }
-    }
-
     async getUser(id) {
         try {
             const response = await User.findByPk(id);
