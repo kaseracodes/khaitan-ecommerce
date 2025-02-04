@@ -165,57 +165,8 @@ async function getCategory(req, res) {
 
 async function updateCategory(req, res) {
     try {
-        // Extract name and description from request body
-        const { name, description } = req.body;
-
-        // Validate if name and description are provided
-        if (!name || !description) {
-            return res.status(StatusCodes.BAD_REQUEST).json({
-                success: false,
-                error: { message: "Name and description are required" },
-                message: "Invalid input",
-                data: {}
-            });
-        }
-
-        // Call the updateCategory service function
-        const response = await categoryService.updateCategory(req.params.id, name, description);
-
-        // Return success response
-        return res.status(StatusCodes.OK).json({
-            success: true,
-            error: {},
-            message: "Successfully updated Category",
-            data: response
-        });
-
-    } catch (error) {
-        console.log("CategoryController: Something went wrong", error);
-        console.log("Errorname", error.name);
-        return res
-            .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
-            .json(errorResponse(error.reason, error));
-    }
-}
-
-async function partialUpdateCategory(req, res) {
-    try {
-        // Extract name and description from request body
-        const { name,description } = req.body;
-        console.log(req.body);
-
-        // Validate if updates are provided
-        if (!name && !description) {
-            return res.status(StatusCodes.BAD_REQUEST).json({
-                success: false,
-                error: { message: "No updates are required" },
-                message: "Invalid input",
-                data: {}
-            });
-        }
-
         // Call the partialUpdateCategory service function
-        const response = await categoryService.partialUpdateCategory(req.params.id, name, description);
+        const response = await categoryService.updateCategory(req.params.id, req.body);
 
         // // Return success response
         return res.status(StatusCodes.OK).json({
@@ -267,7 +218,6 @@ module.exports = {
     getAllCategories,
     getProductsForCategory,
     updateCategory,
-    partialUpdateCategory,
     getAttributesForCategory,
     getAllProductsWithAttributesForCategory,
     getAllProductsWithAttributesAndMediaForCategory
