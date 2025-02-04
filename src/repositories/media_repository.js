@@ -1,12 +1,38 @@
 const { Media } = require('../models/index');
 
 class MediaRepository {
-    async getMedias() {
+    async getMedias(name, utility) {
         try {
-            const response = await Media.findAll();
-            return response;
-        } catch(error) {
-            console.log(error);
+            const filter = {};
+            if (name) {
+                filter.name = name;
+            }
+            if (utility) {
+                filter.utility = utility;
+            }
+
+            const mediaItems = await Media.findAll({ where: filter });
+
+            if (!mediaItems || mediaItems.length === 0) {
+                console.error("MediaRepository: No media found");
+                return [];
+            }
+
+            return mediaItems.map(item => ({
+                id: item.id,
+                name: item.name,
+                utility: item.utility,
+                url: item.url,
+                colorId: item.colorId,
+                productId: item.productId,
+                name: item.name,
+                utility: item.utility,
+                redirectURL: item.redirectURL,
+                createdAt: item.createdAt,
+                updatedAt: item.updatedAt
+            }));
+        } catch (error) {
+            console.error("MediaRepository: Error fetching media", error);
             throw error;
         }
     }
@@ -21,13 +47,16 @@ class MediaRepository {
         }
     }
 
-    async createMedia(type, url, productId, colorId) {
+    async createMedia(type, url, productId, colorId, name, utility, redirectURL) {
         try {
             const response = await Media.create({
                 type,
                 url,
                 productId,
-                colorId
+                colorId,
+                name,
+                utility,
+                redirectURL,
             });
             return response;
         } catch(error) {

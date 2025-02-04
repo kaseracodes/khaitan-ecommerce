@@ -9,7 +9,7 @@ class MediaService {
 
     async createMedia(media) {
         try {
-            const response = await this.repository.createMedia(media.type, media.url, media.productId, media.colorId);
+            const response = await this.repository.createMedia(media.type, media.url, media.productId, media.colorId, media.name, media.utility, media.redirectURL);
             return response;
         } catch(error) {
             console.log("MediaService: ",error);
@@ -18,11 +18,22 @@ class MediaService {
         
     }
 
-    async getAllMedias() {
+    async getAllMedias(query) {
         try {
-            const response = await this.repository.getMedias();
+            if (query.name && typeof query.name !== "string") {
+                throw new BadRequest("name must be a string", true);
+            }
+            
+            if (query.utility && typeof query.utility !== "string") {
+                throw new BadRequest("usage must be a string", true);
+            }
+
+            const response = await this.repository.getMedias(+query.name, +query.utility);
             return response;
         } catch(error) {
+            if(error.name === "BadRequest") {
+                throw error;
+            }
             console.log("MediaService: ",error);
             throw new InternalServerError();
         }
