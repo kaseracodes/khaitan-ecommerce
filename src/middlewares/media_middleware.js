@@ -21,7 +21,7 @@ function mediaValidator(req,res,next) {
 
 function updateMediaValidator(req,res,next) {
     
-    if (!req.body.type && !req.body.url && !req.body.name && !req.body.tag && !req.body.productId && !req.body.colorId) {
+    if (!req.body.type && !req.body.url && !req.body.name && !req.body.utility && !req.body.productId && !req.body.colorId && !req.body.redirectURL) {
         return res
                 .status(StatusCodes.BAD_REQUEST)
                 .json(errorResponse(ReasonPhrases.BAD_REQUEST, new BadRequest("No parameters present")))

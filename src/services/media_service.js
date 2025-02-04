@@ -61,9 +61,9 @@ class MediaService {
 
     async updateMedia(mediaId, data) {
         try{
-            const { type, url, productId, colorId } = data;
+            const { type, url, productId, colorId, name, utility, redirectURL } = data;
 
-            const response = await this.repository.updateMedia(mediaId, type, url, productId, colorId);
+            const response = await this.repository.updateMedia(mediaId, type, url, productId, colorId, name, utility, redirectURL);
             if(!response) {
                 // we were not able to find anything
                 console.log("MediaService: ", mediaId, "not found");

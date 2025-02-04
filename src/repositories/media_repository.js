@@ -65,7 +65,7 @@ class MediaRepository {
         }
     }
 
-    async updateMedia(id, type, url, productId, colorId) {
+    async updateMedia(id, type, url, productId, colorId, name, utility, redirectURL) {
         try {
             // Perform the update operation
             const rowsUpdated = await Media.update(
@@ -73,7 +73,10 @@ class MediaRepository {
                     type,
                     url,
                     productId,
-                    colorId
+                    colorId,
+                    name,
+                    utility,
+                    redirectURL
                 },
                 { 
                     where: { id }
