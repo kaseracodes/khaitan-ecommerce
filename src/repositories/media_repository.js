@@ -1,23 +1,24 @@
 const { Media } = require('../models/index');
+const { Op } = require("sequelize");
 
 class MediaRepository {
     async getMedias(name, utility) {
         try {
-            const filter = {};
-            if (name) {
-                filter.name = name;
-            }
-            if (utility) {
-                filter.utility = utility;
-            }
-
-            const mediaItems = await Media.findAll({ where: filter });
-
+            name = name != null ? String(name) : '';
+            utility = utility != null ? String(utility) : '';
+    
+            const mediaItems = await Media.findAll({
+                where: {
+                    name: { [Op.like]: `%${name}%` },
+                    utility: { [Op.like]: `%${utility}%` }
+                }
+            });
+    
             if (!mediaItems || mediaItems.length === 0) {
-                console.error("MediaRepository: No media found");
+                console.warn("MediaRepository: No media found");
                 return [];
             }
-
+    
             return mediaItems.map(item => ({
                 id: item.id,
                 name: item.name,
@@ -25,17 +26,16 @@ class MediaRepository {
                 url: item.url,
                 colorId: item.colorId,
                 productId: item.productId,
-                name: item.name,
-                utility: item.utility,
                 redirectURL: item.redirectURL,
                 createdAt: item.createdAt,
                 updatedAt: item.updatedAt
             }));
+    
         } catch (error) {
             console.error("MediaRepository: Error fetching media", error);
             throw error;
         }
-    }
+    }    
 
     async getMedia(id) {
         try {

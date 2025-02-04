@@ -28,7 +28,7 @@ class MediaService {
                 throw new BadRequest("usage must be a string", true);
             }
 
-            const response = await this.repository.getMedias(+query.name, +query.utility);
+            const response = await this.repository.getMedias(query.name, query.utility);
             return response;
         } catch(error) {
             if(error.name === "BadRequest") {
