@@ -15,6 +15,18 @@ const Media = db.define('media', {
         type: Sequelize.STRING,
         allowNull: false,
     },
+    name: {
+        type: Sequelize.STRING,
+        allowNull: true,
+    },
+    utility: {
+        type: Sequelize.STRING,
+        allowNull: true,
+    },
+    redirectURL: {
+        type: Sequelize.STRING,
+        allowNull: true,
+    },
     productId: {
         type: Sequelize.INTEGER,
         allowNull: true,

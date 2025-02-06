@@ -33,7 +33,7 @@ async function getAllMedias(req,res) {
 
     try {
 
-        const response = await mediaService.getAllMedias();
+        const response = await mediaService.getAllMedias(req.query);
 
         return res
                 .status(StatusCodes.OK)

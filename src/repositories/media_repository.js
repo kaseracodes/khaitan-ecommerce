@@ -1,15 +1,31 @@
 const { Media } = require('../models/index');
+const { Op } = require("sequelize");
 
 class MediaRepository {
-    async getMedias() {
+    async getMedias(name, utility) {
         try {
-            const response = await Media.findAll();
-            return response;
-        } catch(error) {
-            console.log(error);
+            name = name != null ? String(name) : '';
+            utility = utility != null ? String(utility) : '';
+    
+            const mediaItems = await Media.findAll({
+                where: {
+                    name: { [Op.like]: `%${name}%` },
+                    utility: { [Op.like]: `%${utility}%` }
+                }
+            });
+    
+            if (!mediaItems || mediaItems.length === 0) {
+                console.warn("MediaRepository: No media found");
+                return [];
+            }
+    
+            return mediaItems;
+    
+        } catch (error) {
+            console.error("MediaRepository: Error fetching media", error);
             throw error;
         }
-    }
+    }    
 
     async getMedia(id) {
         try {
@@ -21,13 +37,16 @@ class MediaRepository {
         }
     }
 
-    async createMedia(type, url, productId, colorId) {
+    async createMedia(type, url, productId, colorId, name, utility, redirectURL) {
         try {
             const response = await Media.create({
                 type,
                 url,
                 productId,
-                colorId
+                colorId,
+                name,
+                utility,
+                redirectURL,
             });
             return response;
         } catch(error) {
@@ -36,7 +55,7 @@ class MediaRepository {
         }
     }
 
-    async updateMedia(id, type, url, productId, colorId) {
+    async updateMedia(id, type, url, productId, colorId, name, utility, redirectURL) {
         try {
             // Perform the update operation
             const rowsUpdated = await Media.update(
@@ -44,7 +63,10 @@ class MediaRepository {
                     type,
                     url,
                     productId,
-                    colorId
+                    colorId,
+                    name,
+                    utility,
+                    redirectURL
                 },
                 { 
                     where: { id }
