@@ -16,6 +16,11 @@ const Order = db.define('order', {
             model: 'users',
             key: 'id'
         }
+    },
+    totalPrice: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        defaultValue: 0
     }
 });
 

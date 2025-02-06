@@ -21,11 +21,12 @@ class OrderRepository {
         }
     }
 
-    async createOrder(userId, status) {
+    async createOrder(userId, status, totalPrice) {
         try {
             const response = await Order.create({
                 userId,
-                status
+                status,
+                totalPrice
             });
             return response;
         } catch(error) {
@@ -52,13 +53,13 @@ class OrderRepository {
                 },
                 include: {
                     model: Product,
-                    attributes: ['title', 'id', 'price', 'image'],
+                    attributes: ['title', 'id', 'price'],
                     through: {
                         model: OrderProducts,
                         attributes: ['quantity']
                     }
                 },
-                attributes: ['id', 'status', 'createdAt', 'updatedAt'],
+                attributes: ['id', 'status', 'totalPrice' ,'createdAt', 'updatedAt'],
             });
             return response;
         } catch(error) {
