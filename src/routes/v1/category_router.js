@@ -3,18 +3,17 @@ const express = require('express');
 const { CategoryController } = require('../../controllers/index');
 
 
-const { createCategory, getAllCategories, getCategory, updateCategory, partialUpdateCategory, destroyCategory, getProductsForCategory, getAttributesForCategory, getAllProductsWithAttributesForCategory, getAllProductsWithAttributesAndMediaForCategory }  = CategoryController;
-const { createCategoryValidator } = require('../../middlewares/category_middleware');
+const { createCategory, getAllCategories, getCategory, updateCategory, destroyCategory, getProductsForCategory, getAttributesForCategory, getAllProductsWithAttributesForCategory, getAllProductsWithAttributesAndMediaForCategory }  = CategoryController;
+const { categoryValidator, updateCategoryValidator } = require('../../middlewares/category_middleware');
 
 const categoryRouter = express.Router();
 
 
 categoryRouter.post('/', 
-                createCategoryValidator, 
+                categoryValidator, 
                 createCategory); // mapping a route to a controller
 
-categoryRouter.put('/:id', updateCategory);
-categoryRouter.patch('/:id', partialUpdateCategory);
+categoryRouter.patch('/:id', updateCategoryValidator, updateCategory);
                 
 categoryRouter.get('/', getAllCategories);
 categoryRouter.get('/:id/products/attributes/media', getAllProductsWithAttributesAndMediaForCategory);

@@ -6,7 +6,18 @@ const OrderService = require('./order_service');
 const AttributeService = require('./attribute_service');
 const ColorService = require('./color_service');
 const MediaService = require('./media_service');
+const PermissionService = require('./permission_service');
+const RoleService = require('./role_service');
+
 module.exports = {
-    CategoryService, ProductService, UserService, CartService,
-    OrderService, AttributeService, ColorService, MediaService
+    CategoryService, 
+    ProductService, 
+    UserService, 
+    CartService,
+    OrderService,
+    AttributeService, 
+    ColorService, 
+    MediaService,
+    PermissionService,
+    RoleService
 }

@@ -63,28 +63,104 @@ async function signin(req, res) {
 
 }
 
-async function getAllUsers(req, res) {
+async function verifyUserRole(req, res) {
     try {
-        const response = await userService.getAllUsers();
+        const response = await userService.verifyUserRole(req);
 
         return res
-                .status(StatusCodes.OK)
-                .json({
-                    sucess: true,
-                    error: {},
-                    message: "Successfully fetched Users",
-                    data: response
-        });
+            .status(StatusCodes.OK)
+            .json({
+                success: true,
+                error: {},
+                message: "User role verification updated successfully",
+                data: response,
+            });
+
     } catch (error) {
-        console.log("CategoryController: Something went wrong", error);
+        console.log("UserController: Something went wrong", error);
         return res
-                .status(error.statusCode)
-                .json(errorResponse(error.reason, error));
+            .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+            .json(errorResponse(error.reason || ReasonPhrases.INTERNAL_SERVER_ERROR, error));
     }
 }
+
+async function getRoleUnverifiedUsers(req, res) {
+    try {
+        const response = await userService.getRoleUnverifiedUsers();
+        return res.status(StatusCodes.OK).json({
+            success: true,
+            error: {},
+            message: "Successfully fetched users whose roles are unverified",
+            data: response,
+        });
+    } catch (error) {
+        console.log("UserController: Error fetching unverified users", error);
+        return res
+            .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+            .json(errorResponse(error.reason || ReasonPhrases.INTERNAL_SERVER_ERROR, error));
+    }
+}
+
+async function getAdminUsers(req, res) {
+    try {
+        const admins = await userService.getAdminUsers();
+        return res.status(StatusCodes.OK).json({
+            success: true,
+            error: {},
+            message: "Successfully fetched all verified admins along with their roles",
+            data: admins,
+        });
+    } catch (error) {
+        console.log("UserController: Error fetching admin users", error);
+        return res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).
+        json(errorResponse(error.reason || ReasonPhrases.INTERNAL_SERVER_ERROR, error));
+    }
+}
+
+async function getRegularUsers(req, res) {
+    try {
+        const users = await userService.getRegularUsers();
+        return res.status(StatusCodes.OK).json({
+            success: true,
+            error: {},
+            message: "Successfully fetched all regular users",
+            data: users,
+        });
+    } catch (error) {
+        console.log("UserController: Error fetching regular users", error);
+        return res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).
+        json(errorResponse(error.reason || ReasonPhrases.INTERNAL_SERVER_ERROR, error));
+    }
+}
+
+async function changeUserRole(req, res) {
+    try {
+        const { roleId } = req.body;
+        const { id } = req.params;
+
+        const response = await userService.changeUserRole(id, roleId);
+
+        return res.status(StatusCodes.OK).json({
+            success: true,
+            error: {},
+            message: "Successfully updated user role",
+            data: response,
+        });
+    } catch (error) {
+        console.log("UserController: Something went wrong", error);
+        return res
+            .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+            .json(errorResponse(error.reason || ReasonPhrases.INTERNAL_SERVER_ERROR, error));
+    }
+}
+
 
 module.exports = {
     createUser,
     signin,
-    getAllUsers
+    verifyUserRole,
+    getRoleUnverifiedUsers,
+    getAdminUsers,
+    getRegularUsers,
+    changeUserRole
 }
