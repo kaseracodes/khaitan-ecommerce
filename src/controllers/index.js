@@ -9,6 +9,7 @@ const ColorController = require('./color_controller');
 const MediaController = require('./media_controller');
 const PermissionController = require('./permission_controller');
 const RoleController = require('./role_controller');
+const JobOpeningController = require('./job_opening_controller');
 
 module.exports = {
     CategoryController,
@@ -21,5 +22,6 @@ module.exports = {
     ColorController,
     MediaController,
     PermissionController,
-    RoleController
+    RoleController,
+    JobOpeningController
 }

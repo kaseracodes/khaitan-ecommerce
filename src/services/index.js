@@ -8,6 +8,7 @@ const ColorService = require('./color_service');
 const MediaService = require('./media_service');
 const PermissionService = require('./permission_service');
 const RoleService = require('./role_service');
+const JobOpeningService = require('./job_opening_service');
 
 module.exports = {
     CategoryService, 
@@ -19,5 +20,6 @@ module.exports = {
     ColorService, 
     MediaService,
     PermissionService,
-    RoleService
+    RoleService,
+    JobOpeningService
 }

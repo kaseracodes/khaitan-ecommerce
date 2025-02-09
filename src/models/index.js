@@ -12,6 +12,7 @@ const ProductAttributes = require("./products_attributes");
 const Permission = require("./permission");
 const Role = require("./role");
 const RolePermissions = require("./role_permissions");
+const JobOpening = require("./jobopening");
 
 const { NODE_ENV } = require('../config/server_config');
 
@@ -27,8 +28,10 @@ async function syncDbInOrder() {
     await CartProducts.sync();
     await OrderProducts.sync();
     await Attribute.sync();
+    await ProductAttributes.sync();
     await Color.sync();
     await Media.sync();
+    await JobOpening.sync();
 }
 
 Product.belongsTo(Category, {foreignKey: 'categoryId'});
@@ -111,5 +114,6 @@ module.exports = {
     ProductAttributes, 
     Color, 
     Media,
+    JobOpening,
     syncDbInOrder
 }
