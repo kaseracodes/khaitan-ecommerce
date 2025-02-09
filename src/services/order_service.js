@@ -1,3 +1,4 @@
+const ForbiddenError = require("../errors/forbidden_error");
 const InternalServerError = require("../errors/internal_server_error");
 const NotFoundError = require("../errors/not_found_error");
 
@@ -104,6 +105,55 @@ class OrderService {
         throw new InternalServerError();
       }
     }
+
+  async getOrdersDetailsForAllUsers(roleId, query) {
+    try {
+      if((query.limit && isNaN(query.limit)) || (query.offset && isNaN(query.offset))) {
+        throw new BadRequest("limit, offset", true);
+      }
+      if (query.status && typeof query.status !== "string") {
+        throw new BadRequest("status must be a string", true);
+      }
+      const orderObject = await this.repository.getOrderDetails(null, +query.limit, +query.offset, query.status || null);
+
+      if (!orderObject) {
+        throw new NotFoundError('User', 'user id', userId);
+      }
+
+      return orderObject;
+    } catch(error) {
+      if(error.name === "NotFoundError" || error.name === "UnauthorizedError" || error.name === "ForbiddenError") {
+        throw error;
+      }
+      console.log("OrderService: ",error);
+      throw new InternalServerError();
+    }
   }
+
+  async getOrdersDetailsForUser(userId, query) {
+    try {
+      if((query.limit && isNaN(query.limit)) || (query.offset && isNaN(query.offset))) {
+        throw new BadRequest("limit, offset", true);
+      }
+      if (query.status && typeof query.status !== "string") {
+        throw new BadRequest("status must be a string", true);
+      }
+      const orderObject = await this.repository.getOrderDetails(userId, +query.limit, +query.offset, query.status || null);
+
+      if (!orderObject) {
+        throw new NotFoundError('User', 'user id', userId);
+      }
+
+      return orderObject;
+    } catch(error) {
+      if(error.name === "NotFoundError" || error.name === "UnauthorizedError") {
+        throw error;
+      }
+      console.log("OrderService: ",error);
+      throw new InternalServerError();
+    }
+  }
+
+}
   
   module.exports = OrderService;  
