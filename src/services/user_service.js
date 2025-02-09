@@ -119,6 +119,26 @@ class UserService {
         
     }
 
+    async updateUserDetails(userId, data) {
+        try {
+            const { name } = data;
+
+            const response = await this.respository.updateUserDetails(userId, name);
+            if(!response) {
+                // we were not able to find anything
+                console.log("UserService: ", userId, "not found");
+                throw new NotFoundError("User", "id", userId);
+            }
+            return response;
+        } catch (error) {
+            if(error.name === "NotFoundError" || error.name === "UnauthorizedError" || error.name === "ForbiddenError") {
+                throw error;
+            }
+            console.log("UserService: ",error);
+            throw new InternalServerError();
+        }
+    }
+
     async destroyUser(userId) {
         try {
             const response = await this.respository.destroyUser(userId);

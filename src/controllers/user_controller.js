@@ -63,6 +63,30 @@ async function signin(req, res) {
 
 }
 
+async function updateUserDetails(req, res) {
+    try {
+
+        const response = await userService.updateUserDetails(req.user.id, req.body);
+
+        return res
+                .status(StatusCodes.CREATED)
+                .json({
+                    sucess: true,
+                    error: {},
+                    message: ReasonPhrases.OK + " User",
+                    data: response
+        });
+
+    } catch (error) {
+
+        console.log("UserController: Something went wrong", error);
+        return res
+                .status(error.statusCode)
+                .json(errorResponse(error.reason, error));
+
+    }
+}
+
 async function verifyUserRole(req, res) {
     try {
         const response = await userService.verifyUserRole(req);
@@ -158,6 +182,7 @@ async function changeUserRole(req, res) {
 module.exports = {
     createUser,
     signin,
+    updateUserDetails,
     verifyUserRole,
     getRoleUnverifiedUsers,
     getAdminUsers,
