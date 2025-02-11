@@ -89,11 +89,40 @@ class UserRepository {
         }
     }
 
-    async destroyUser(userId) {
+    async updateUserDetails(id, name) {
+        try {
+            const rowsUpdated = await User.update(
+                { 
+                    name, 
+                },
+                { 
+                    where: { id }
+                }
+            );
+    
+            // If no rows were updated, throw a NotFoundError
+            if (rowsUpdated[0] === 0) {
+                throw new NotFoundError("User", "id", id);
+            }
+    
+            const updatedUser = await User.findOne({ where: { id } });
+        
+            if (!updatedUser) {
+                throw new NotFoundError("User", "id", id);
+            }
+    
+            return updatedUser;
+        } catch (error) {
+            console.log("UserRepository: ", error);
+            throw error;
+        }
+    }
+
+    async destroyUser(id) {
         try {
             const response = await User.destroy({
                 where: {
-                    id: userId
+                    id: id
                 }
             });
             return response;
@@ -103,12 +132,12 @@ class UserRepository {
         }
     }
 
-    async updateUser(userId, updateData) {
+    async updateUser(id, updateData) {
         try {
-            const user = await User.findByPk(userId);
+            const user = await User.findByPk(id);
 
             if (!user) {
-                throw new NotFoundError('User', 'id', userId);
+                throw new NotFoundError('User', 'id', id);
             }
 
             // Update fields dynamically based on updateData
