@@ -19,7 +19,7 @@ module.exports = {
     OrderRepository,
     AttributeRepository,
     ColorRepository,
-    MediaRepository
+    MediaRepository,
     PermissionRepository,
     RoleRepository
 }

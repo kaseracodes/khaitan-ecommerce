@@ -19,7 +19,7 @@ module.exports = {
     OrderController,
     AttributeController,
     ColorController,
-    MediaController
+    MediaController,
     PermissionController,
     RoleController
 }

@@ -33,7 +33,7 @@ async function createOrder(req, res) {
 async function getOrder(req, res) {
 
     try {
-        const response = await orderService.fetchOrderDetails(req.user.id, req.params.id);
+        const response = await orderService.fetchOrderDetails(req.user.id, req.params.id, req.query);
     
         return res
                 .status(StatusCodes.OK)
@@ -53,7 +53,49 @@ async function getOrder(req, res) {
 
 }
 
+async function getOrdersDetailsForAllUsers(req, res) {
+    try {
+        const response = await orderService.getOrdersDetailsForAllUsers(req.user.roleId, req.query);
+    
+        return res
+                .status(StatusCodes.OK)
+                .json({
+                    sucess: true,
+                    error: {},
+                    message: ReasonPhrases.OK + " Orders Details",
+                    data: response
+        });
+    } catch(error) {
+        console.log("OrderController: Something went wrong", error);
+        return res
+                .status(error.statusCode)
+                .json(errorResponse(error.reason, error));
+    }
+}
+
+async function getOrdersDetailsForUser(req,res) {
+    try {
+        const response = await orderService.getOrdersDetailsForUser(req.user.id, req.query);
+    
+        return res
+                .status(StatusCodes.OK)
+                .json({
+                    sucess: true,
+                    error: {},
+                    message: ReasonPhrases.OK + " Orders Details",
+                    data: response
+        });
+    } catch(error) {
+        console.log("OrderController: Something went wrong", error);
+        return res
+                .status(error.statusCode)
+                .json(errorResponse(error.reason, error));
+    }
+}
+
 module.exports = {
     createOrder,
-    getOrder
+    getOrder,
+    getOrdersDetailsForAllUsers,
+    getOrdersDetailsForUser
 }
