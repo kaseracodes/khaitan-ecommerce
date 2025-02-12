@@ -12,6 +12,8 @@ const ProductAttributes = require("./products_attributes");
 const Permission = require("./permission");
 const Role = require("./role");
 const RolePermissions = require("./role_permissions");
+const JobOpening = require("./jobopening");
+const JobApplication = require("./jobapplication");
 
 const { NODE_ENV } = require('../config/server_config');
 
@@ -27,8 +29,11 @@ async function syncDbInOrder() {
     await CartProducts.sync();
     await OrderProducts.sync();
     await Attribute.sync();
+    await ProductAttributes.sync();
     await Color.sync();
     await Media.sync();
+    await JobOpening.sync();
+    await JobApplication.sync();
 }
 
 Product.belongsTo(Category, {foreignKey: 'categoryId'});
@@ -95,6 +100,12 @@ User.belongsTo(Role, { foreignKey: 'roleId'});
 
 Role.hasMany(User, { foreignKey: 'roleId', as: 'users' });
 
+// One to Many mapping between job applications and job openings
+// Job Opening has many Job Application
+// Job Applications belongs to one Job Opening
+JobOpening.hasMany(JobApplication, {foreignKey: 'jobOpeningId'});
+
+JobApplication.belongsTo(JobOpening, {foreignKey: 'jobOpeningId'});
 
 module.exports = {
     Product, 
@@ -111,5 +122,7 @@ module.exports = {
     ProductAttributes, 
     Color, 
     Media,
+    JobOpening,
+    JobApplication,
     syncDbInOrder
 }

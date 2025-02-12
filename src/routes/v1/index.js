@@ -13,6 +13,8 @@ const colorRouter = require('./color_router');
 const mediaRouter = require('./media_router');
 const permissionRouter = require('./permission_router');
 const roleRouter = require('./role_router');
+const jobOpeningRouter = require('./job_opening_router');
+const jobApplicationRouter = require('./job_application_router');
 // Any new api if we have to introduce we should just register it here if it is
 // a V1 api
 
@@ -27,5 +29,7 @@ v1Router.use('/colors', colorRouter);
 v1Router.use('/media', mediaRouter);
 v1Router.use('/permissions', permissionRouter);
 v1Router.use('/roles', roleRouter);
+v1Router.use('/jobOpenings', jobOpeningRouter);
+v1Router.use('/jobApplications', jobApplicationRouter);
 
 module.exports = v1Router;
