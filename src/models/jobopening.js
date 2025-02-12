@@ -34,6 +34,11 @@ const JobOpening = db.define('job_openings', {
     openings: {
       type: Sequelize.INTEGER,
       defaultValue: 1
+    },
+    jobStatus: {
+      type: Sequelize.ENUM("Active", "Inactive"),
+      allowNull: false,
+      defaultValue: "Active"
     }
   });
 

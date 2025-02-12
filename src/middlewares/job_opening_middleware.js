@@ -20,7 +20,7 @@ function jobOpeningValidator(req, res, next) {
 }
 
 function updateJobOpeningValidator(req,res,next) {
-    if(!req.body.title && !req.body.description && !req.body.location && !req.body.employmentType && !req.body.department && !req.body.salaryRange && !req.body.openings) {
+    if(!req.body.title && !req.body.description && !req.body.location && !req.body.employmentType && !req.body.department && !req.body.salaryRange && !req.body.openings && !req.body.jobStatus) {
         return res
                 .status(StatusCodes.BAD_REQUEST)
                 .json(errorResponse(ReasonPhrases.BAD_REQUEST, new BadRequest("No Parameters Available")))

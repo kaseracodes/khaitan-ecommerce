@@ -9,7 +9,7 @@ class JobOpeningService {
 
     async createJobOpening(jobOpening) {
         try {
-            const response = await this.repository.createJobOpening(jobOpening.title, jobOpening.description, jobOpening.location, jobOpening.employmentType, jobOpening.department, jobOpening.salaryRange, jobOpening.openings);
+            const response = await this.repository.createJobOpening(jobOpening.title, jobOpening.description, jobOpening.location, jobOpening.employmentType, jobOpening.department, jobOpening.salaryRange, jobOpening.openings, jobOpening.jobStatus);
             return response;
         } catch(error) {
             console.log("JobOpeningService: ",error);
@@ -23,8 +23,11 @@ class JobOpeningService {
             if((query.limit && isNaN(query.limit)) || (query.offset && isNaN(query.offset))) {
                 throw new BadRequest("limit, offset", true);
             }
+            if (query.jobStatus && typeof query.jobStatus !== "string") {
+                throw new BadRequest("jobStatus must be a string", true);
+            }
 
-            const response = await this.repository.getJobOpenings(+query.limit, +query.offset);
+            const response = await this.repository.getJobOpenings(+query.limit, +query.offset, query.jobStatus);
             return response;
         } catch(error) {
             if(error.name === "BadRequest") {
@@ -57,9 +60,9 @@ class JobOpeningService {
 
     async updateJobOpening(jobOpeningId, data) {
         try{
-            const { title, description, location, employmentType, department, salaryRange, openings } = data;
+            const { title, description, location, employmentType, department, salaryRange, openings, jobStatus } = data;
 
-            const response = await this.repository.updateJobOpening(jobOpeningId, title, description, location, employmentType, department, salaryRange, openings);
+            const response = await this.repository.updateJobOpening(jobOpeningId, title, description, location, employmentType, department, salaryRange, openings, jobStatus);
             if(!response) {
                 // we were not able to find anything
                 console.log("JobOpeningService: ", jobOpeningId, "not found");

@@ -1,7 +1,8 @@
 const { JobOpening } = require('../models/index');
+const { Op } = require('sequelize');
 
 class JobOpeningRepository {
-    async getJobOpenings(limit, offset) {
+    async getJobOpenings(limit, offset, jobStatus) {
         try {
             const filter = {};
             if(limit) {
@@ -12,6 +13,9 @@ class JobOpeningRepository {
             }
     
             const jobOpenings = await JobOpening.findAll({
+                where: {
+                    jobStatus: { [Op.eq]: jobStatus }
+                },
                 ...filter
             });
     
@@ -38,7 +42,7 @@ class JobOpeningRepository {
         }
     }
 
-    async createJobOpening(title, description, location, employmentType, department, salaryRange, openings) {
+    async createJobOpening(title, description, location, employmentType, department, salaryRange, openings, jobStatus) {
         try {
             const jobOpenings = await JobOpening.create({
                 title, 
@@ -47,7 +51,8 @@ class JobOpeningRepository {
                 employmentType, 
                 department, 
                 salaryRange, 
-                openings
+                openings,
+                jobStatus
             });
             return jobOpenings;
         } catch(error) {
@@ -56,7 +61,7 @@ class JobOpeningRepository {
         }
     }
 
-    async updateJobOpening(id, title, description, location, employmentType, department, salaryRange, openings) {
+    async updateJobOpening(id, title, description, location, employmentType, department, salaryRange, openings, jobStatus) {
         try {
             // Perform the update operation
             const rowsUpdated = await JobOpening.update(
@@ -67,7 +72,8 @@ class JobOpeningRepository {
                     employmentType, 
                     department, 
                     salaryRange, 
-                    openings
+                    openings,
+                    jobStatus
                 },
                 { 
                     where: { id }
