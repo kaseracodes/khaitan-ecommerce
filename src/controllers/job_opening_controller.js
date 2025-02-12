@@ -53,6 +53,29 @@ async function getAllJobOpenings(req,res) {
     }
 }
 
+async function getAllJobApplicationsForOpening(req,res) {
+    try {
+
+        const response = await jobOpeningService.getAllJobApplicationsForOpening(req.params.id, req.query);
+
+        return res
+                .status(StatusCodes.OK)
+                .json({
+                    success: true,
+                    error: {},
+                    message: ReasonPhrases.OK + " Job Applications for Opening",
+                    data: response
+        });
+
+    } catch(error) {
+        console.log("JobOpeningController: Something went wrong", error);
+        console.log("Errorname", error.name);
+        return res  
+                .status(error.statusCode)
+                .json(errorResponse(error.reason, error));
+    }
+}
+
 async function getJobOpening(req,res) {
 
     try {
@@ -126,6 +149,7 @@ async function destroyJobOpening(req, res) {
 module.exports = {
     createJobOpening,
     getAllJobOpenings,
+    getAllJobApplicationsForOpening,
     getJobOpening,
     updateJobOpening,
     destroyJobOpening

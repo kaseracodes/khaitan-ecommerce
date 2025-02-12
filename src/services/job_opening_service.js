@@ -39,6 +39,24 @@ class JobOpeningService {
         
     }
 
+    async getAllJobApplicationsForOpening(jobOpeningId, query) {
+        try {
+            if((query.limit && isNaN(query.limit)) || (query.offset && isNaN(query.offset))) {
+                throw new BadRequest("limit, offset", true);
+            }
+
+            const response = await this.repository.getJobApplicationsForOpening(jobOpeningId, +query.limit, +query.offset);
+            return response;
+        } catch(error) {
+            if(error.name === "BadRequest") {
+                throw error;
+            }
+            console.log("JobOpeningService: ",error);
+            throw new InternalServerError();
+        }
+        
+    }
+
     async getJobOpening(jobOpeningId) {
         try {
             const response = await this.repository.getJobOpening(jobOpeningId);

@@ -1,4 +1,4 @@
-const { JobOpening } = require('../models/index');
+const { JobOpening, JobApplication } = require('../models/index');
 const { Op } = require('sequelize');
 
 class JobOpeningRepository {
@@ -30,7 +30,38 @@ class JobOpeningRepository {
             console.error("JobOpeningRepository: Error fetching Job Openings", error);
             throw error;
         }
-    }    
+    }
+    
+    async getJobApplicationsForOpening(id, limit, offset) {
+        try {
+            const filter = {};
+            if(limit) {
+                filter.limit = limit;
+            }
+            if(offset) {
+                filter.offset = offset;
+            }
+    
+            const jobOpenings = await JobApplication.findAll({
+                where: {
+                    jobOpeningId: id,
+                },
+                ...filter
+            });
+    
+            if (!jobOpenings || jobOpenings.length === 0) {
+                console.warn("JobOpeningRepository: No Applications for Job Opening found");
+                return [];
+            }
+    
+            return jobOpenings;
+    
+        } catch (error) {
+            console.error("JobOpeningRepository: Error fetching Job Openings", error);
+            throw error;
+        }
+    }
+    
 
     async getJobOpening(id) {
         try {
