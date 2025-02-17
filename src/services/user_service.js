@@ -6,6 +6,7 @@ const ForbiddenError = require("../errors/forbidden_error");
 const bcrypt = require('bcrypt');
 const UnauthorizedError = require("../errors/unauthorized_error");
 const { generateJWT } = require("../utils/auth");
+const otpCache = require("../cache/otp_cache");
 class UserService {
 
     constructor(respository, cartRepository) {
@@ -18,6 +19,7 @@ class UserService {
         try {
             const response = await this.respository.createUser(user.email, user.password, user.name, user.phoneNumber, user.roleId);
             await this.cartRepository.createCart(response.id);
+            otpCache.createOTP(response.id);
             return response;
         } catch(error) {
             console.log("UserService: ", error.name);
@@ -50,6 +52,13 @@ class UserService {
             const doesPasswordMatch = bcrypt.compareSync(userRequestObject.password, user.password);
             if(!doesPasswordMatch) {
                 throw new UnauthorizedError();
+            }
+            if(!user.isUserVerified){
+                if(user.roleId == 1) {
+                    throw new ForbiddenError('User Website', 'signin', 'User unverified');
+                } else {
+                    throw new ForbiddenError('Admin Panel', 'sigin', 'User unverified');
+                }
             }
             // roleId 1 corresponds to a normal user.
             if((user.roleId != 1) && (!user.isRoleVerified)){
@@ -177,6 +186,30 @@ class UserService {
                 const updatedUser = await this.respository.updateUser(requestedUser.id, { isRoleVerified: false });
                 return updatedUser;
             }
+        } catch (error) {
+            if (error.name === "NotFoundError" || error.name === "ForbiddenError") {
+                throw error;
+            }
+            console.log("UserService: ", error);
+            throw new InternalServerError();
+        }
+    }
+
+    async verifyUserOTP(req) {
+        try {
+            const requestedUser = await this.respository.getUser(req.params.id);
+            if (!requestedUser) {
+                throw new NotFoundError("User", "id", req.params.id);
+            }
+            const { otp } = req.body;
+            console.log(req.body);
+            const isValid = otpCache.validateOTP(req.params.id, otp);
+            if (isValid === false) {
+                otpCache.createOTP(req.params.id);
+                throw new ForbiddenError("Invalid OTP provided.");
+            }
+            const updatedUser = await this.respository.updateUser(requestedUser.id, { isUserVerified: true });
+            return updatedUser;
         } catch (error) {
             if (error.name === "NotFoundError" || error.name === "ForbiddenError") {
                 throw error;

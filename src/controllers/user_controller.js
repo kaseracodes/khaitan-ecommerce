@@ -108,6 +108,27 @@ async function verifyUserRole(req, res) {
     }
 }
 
+async function verifyUserOTP(req, res) {
+    try {
+        const response = await userService.verifyUserOTP(req);
+
+        return res
+            .status(StatusCodes.OK)
+            .json({
+                success: true,
+                error: {},
+                message: "User OTP verification updated successfully",
+                data: response,
+            });
+
+    } catch (error) {
+        console.log("UserController: Something went wrong", error);
+        return res
+            .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+            .json(errorResponse(error.reason || ReasonPhrases.INTERNAL_SERVER_ERROR, error));
+    }
+}
+
 async function getRoleUnverifiedUsers(req, res) {
     try {
         const response = await userService.getRoleUnverifiedUsers();
@@ -184,6 +205,7 @@ module.exports = {
     signin,
     updateUserDetails,
     verifyUserRole,
+    verifyUserOTP,
     getRoleUnverifiedUsers,
     getAdminUsers,
     getRegularUsers,

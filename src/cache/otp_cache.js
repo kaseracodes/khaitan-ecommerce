@@ -21,15 +21,19 @@ class OTPCache {
     }
 
     validateOTP(userId, otp) {
-        const storedOtp = this.otpCache.get(userId);
-        console.log(`Stored OTP for ${userId}: ${storedOtp}, OTP being validated: ${otp}`);
-        if (storedOtp && storedOtp == otp) {
-            console.log(`OTP validated successfully for user ${userId}`);
-            this.otpCache.del(userId);
-            return true;
+        try {
+            const storedOtp = this.otpCache.get(userId);
+            console.log(`Stored OTP for ${userId}: ${storedOtp}, OTP being validated: ${otp}`);
+            if (storedOtp && storedOtp == otp) {
+                console.log(`OTP validated successfully for user ${userId}`);
+                this.otpCache.del(userId);
+                return true;
+            }
+        } catch (error) {
+            console.log(`OTP validation failed for user ${userId}`);
+            return false;
         }
-        console.log(`OTP validation failed for user ${userId}`);
-        return false;
+        
     }
     
 
