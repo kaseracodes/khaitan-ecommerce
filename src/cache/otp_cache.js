@@ -29,6 +29,8 @@ class OTPCache {
                 this.otpCache.del(userId);
                 return true;
             }
+            this.otpCache.del(userId);
+            return false;
         } catch (error) {
             console.log(`OTP validation failed for user ${userId}`);
             return false;

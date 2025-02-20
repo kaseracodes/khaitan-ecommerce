@@ -204,17 +204,30 @@ class UserService {
             const { otp } = req.body;
             console.log(req.body);
             const isValid = otpCache.validateOTP(req.params.id, otp);
-            if (isValid === false) {
-                otpCache.createOTP(req.params.id);
-                throw new ForbiddenError("Invalid OTP provided.");
+            if (isValid == false) {
+                throw new ForbiddenError("Profile","Login","Invalid OTP provided.");
             }
             const updatedUser = await this.respository.updateUser(requestedUser.id, { isUserVerified: true });
             return updatedUser;
         } catch (error) {
+            console.log("UserService: Error verifying OTP", error);
             if (error.name === "NotFoundError" || error.name === "ForbiddenError") {
                 throw error;
             }
-            console.log("UserService: ", error);
+            throw new InternalServerError();
+        }
+    }
+
+    async resendUserOTP(req) {
+        try {
+            const newOtp = otpCache.createOTP(req.params.id);
+
+            console.log(`New OTP Created for User ${req.params.id}: ${newOtp}`);
+        } catch (error) {
+            console.log("UserService: Error resending OTP", error);
+            if (error.name === "NotFoundError" || error.name === "ForbiddenError") {
+                throw error;
+            }
             throw new InternalServerError();
         }
     }
