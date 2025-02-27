@@ -9,6 +9,8 @@ const ColorRepository = require('./color_repository');
 const MediaRepository = require('./media_repository');
 const PermissionRepository = require('./permission_repository');
 const RoleRepository = require('./role_repository');
+const JobOpeningRepository = require('./job_opening_repository');
+const JobApplicationRepository = require('./job_application_repository');
 
 module.exports = {
     ProductRepository, 
@@ -21,5 +23,7 @@ module.exports = {
     ColorRepository,
     MediaRepository,
     PermissionRepository,
-    RoleRepository
+    RoleRepository,
+    JobOpeningRepository,
+    JobApplicationRepository
 }
