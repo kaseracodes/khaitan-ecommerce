@@ -1,11 +1,12 @@
 const express = require('express')
 
-const { mediaValidator, updateMediaValidator } = require('../../middlewares/media_middleware');
+const { updateMediaValidator } = require('../../middlewares/media_middleware');
+const upload = require('../../middlewares/upload_middleware');
 const { createMedia, updateMedia, getAllMedias, getMedia, destroyMedia } = require('../../controllers/media_controller');
 
 const mediaRouter = express.Router();
 
-mediaRouter.post('/', mediaValidator, createMedia);
+mediaRouter.post('/', upload.single("media"), createMedia);
 
 mediaRouter.patch('/:id', updateMediaValidator, updateMedia);
                         
