@@ -49,6 +49,10 @@ const User = db.define('user', {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
     },
+    isUserVerified: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+    }
 }, {
     hooks: {
         beforeCreate: function (user) {

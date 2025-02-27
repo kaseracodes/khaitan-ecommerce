@@ -2,6 +2,12 @@ const { Op } = require("sequelize");
 
 const { User, Role } = require('../models/index');
 
+const otpCache = require("../cache/otp_cache");
+
+const ForbiddenError = require("../errors/forbidden_error");
+
+const NotFoundError = require("../errors/not_found_error");
+
 class UserRepository {
     async getRegularUsers() {
         try {
