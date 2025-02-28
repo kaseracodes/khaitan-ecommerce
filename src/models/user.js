@@ -16,10 +16,11 @@ const User = db.define('user', {
     password: {
         type: Sequelize.STRING,
         allowNull: false,
-        validate: {
-            len: [3, 30],
-            isAlphanumeric: true,
-        }
+        // Validations have been removed because hashed passwords fail validation on updation
+        // validate: {
+        //     len: [3, 30],
+        //     isAlphanumeric: true,
+        // }
     },
     name: {
         type: Sequelize.STRING,
@@ -58,7 +59,13 @@ const User = db.define('user', {
         beforeCreate: function (user) {
             const salt = bcrypt.genSaltSync(+SALT_ROUNDS);
             user.password = bcrypt.hashSync(user.password, salt);
-        }
+        },
+        // beforeUpdate: async function (user) {
+        //     if (user.changed('password')) {
+        //         const salt = await bcrypt.genSalt(+SALT_ROUNDS);
+        //         user.password = await bcrypt.hash(user.password, salt);
+        //     }
+        // }
     }
 });
 

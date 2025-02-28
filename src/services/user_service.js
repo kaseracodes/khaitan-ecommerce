@@ -1,12 +1,16 @@
+const bcrypt = require('bcrypt');
+
 const BadRequest = require("../errors/bad_request_error");
 const ConflictError = require("../errors/conflict_error");
 const InternalServerError = require("../errors/internal_server_error");
 const NotFoundError = require("../errors/not_found_error");
 const ForbiddenError = require("../errors/forbidden_error");
-const bcrypt = require('bcrypt');
 const UnauthorizedError = require("../errors/unauthorized_error");
-const { generateJWT } = require("../utils/auth");
+
+const { generateJWT, verifyToken } = require("../utils/auth");
+const { SALT_ROUNDS } = require("../config/server_config");
 const otpCache = require("../cache/otp_cache");
+
 class UserService {
 
     constructor(respository, cartRepository) {
@@ -147,6 +151,65 @@ class UserService {
             throw new InternalServerError();
         }
     }
+
+    async forgotPassword(userId) {
+        try {
+            const user = await this.respository.getUser(userId);
+
+            if (!user) {
+                throw new NotFoundError("User", "id", userId);
+            }
+
+            const token = generateJWT({id: userId, type: 'password-reset'});
+
+            console.log(token);
+
+            return token;
+        } catch(error) {
+            if(error.name === "NotFoundError" || error.name === "UnauthorizedError" || error.name === "ForbiddenError") {
+                throw error;
+            }
+            console.log("UserService: ",error);
+            throw new InternalServerError();
+        }
+    }
+
+    async resetPassword(userId, data) {
+        try {
+            const { token, newPassword } = data;        
+
+            const payload = verifyToken(token);
+    
+            if (payload.type !== 'password-reset') {
+                throw new UnauthorizedError("Invalid token type");
+            }
+    
+            // Optional: Verify that the userId from the URL matches the token's id.
+            if (userId != payload.id) {
+                throw new UnauthorizedError("User ID mismatch");
+            }
+    
+            const user = await this.respository.getUser(userId);
+            if (!user) {
+                throw new NotFoundError("User", "id", userId);
+            }
+
+            const salt = await bcrypt.genSalt(+SALT_ROUNDS);
+            const encryptedNewPassword = await bcrypt.hash(newPassword, salt);
+    
+            await this.respository.updateUser(userId, { password: encryptedNewPassword });
+        } catch (error) {
+            console.log("UserService: ",error);
+            if (error.name === "NotFoundError" || error.name === "ForbiddenError") {
+                throw error;
+            }
+            if (error.name === "UnauthorizedError") {
+                throw new UnauthorizedError("Invalid Token.");
+            }
+            throw new InternalServerError();
+        }
+    }
+    
 
     async destroyUser(userId) {
         try {
