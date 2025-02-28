@@ -22,12 +22,15 @@ class OrderRepository {
         }
     }
 
-    async createOrder(userId, status, totalPrice) {
+    async createOrder(userId, status, totalPrice, deliveryStatus, expectedDeliveryDate, dateOfDelivery) {
         try {
             const response = await Order.create({
                 userId,
                 status,
-                totalPrice
+                totalPrice,
+                deliveryStatus, 
+                expectedDeliveryDate, 
+                dateOfDelivery
             });
             return response;
         } catch(error) {
@@ -40,6 +43,28 @@ class OrderRepository {
         try {
             const response = await OrderProducts.bulkCreate(orderProducts);
             return response;
+        } catch(error) {
+            console.log(error);
+            throw error;
+        }
+    }
+
+    async updateDeliveryStatus(orderId) {
+        try {
+
+            await Order.update(
+                {
+                    deliveryStatus: 'delivered',
+                    dateOfDelivery: new Date()
+                },
+                {
+                    where: { id: orderId }
+                }
+            );
+    
+            const updatedOrder = await Order.findByPk(orderId);
+            return updatedOrder;
+
         } catch(error) {
             console.log(error);
             throw error;
@@ -60,7 +85,7 @@ class OrderRepository {
                         attributes: ['quantity']
                     }
                 },
-                attributes: ['id', 'status', 'totalPrice' ,'createdAt', 'updatedAt'],
+                attributes: ['id', 'status', 'totalPrice' , 'deliveryStatus', 'expectedDeliveryDate', 'dateOfDelivery', 'createdAt', 'updatedAt'],
             });
             return response;
         } catch(error) {
@@ -101,7 +126,7 @@ class OrderRepository {
                 }
             },
             ...filter,
-            attributes: ['id', 'userId', 'status', 'totalPrice', 'createdAt', 'updatedAt'],
+            attributes: ['id', 'userId', 'status', 'totalPrice', 'deliveryStatus', 'expectedDeliveryDate', 'dateOfDelivery', 'createdAt', 'updatedAt'],
             };
 
             const response = await Order.findAll(queryOptions);
@@ -111,6 +136,9 @@ class OrderRepository {
                     id: order.id,
                     status: order.status,
                     totalPrice: order.totalPrice,
+                    deliveryStatus: order.deliveryStatus,
+                    expectedDeliveryDate: order.expectedDeliveryDate,
+                    dayOfDelivery: order.dateOfDelivery,
                     createdAt: order.createdAt,
                     updatedAt: order.updatedAt,
                     products: order.products.map(product => ({
