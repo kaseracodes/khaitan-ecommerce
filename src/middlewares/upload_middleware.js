@@ -1,5 +1,6 @@
 const multer = require("multer");
 const path = require("path");
+const BadRequest = require("../errors/bad_request_error");
 
 // Configure storage
 const storage = multer.diskStorage({
@@ -16,7 +17,7 @@ const allowedTypes = [
     "image/jpeg", "image/png", "image/jpg", "image/webp", // Images
     "video/mp4", "video/mkv", "video/webm", "video/quicktime", // Videos
     "application/pdf"
-  ];
+];
 
 // File filter (optional) - Restrict file types
 const fileFilter = (req, file, cb) => {

@@ -10,7 +10,7 @@ class MediaService {
     async createMedia(req) {
         try {
             const { type, productId, colorId, name, utility, redirectURL } = req.body;
-            const mediaUrl = `/uploads/${req.file.filename}`;
+            const mediaUrl = req.file.location;
             const response = await this.repository.createMedia(type, mediaUrl, productId, colorId, name, utility, redirectURL);
             return response;
         } catch(error) {
