@@ -1,51 +1,51 @@
 const { StatusCodes, ReasonPhrases } = require('http-status-codes');
 
-const { MediaService } = require('../services/index');
-const { MediaRepository } = require('../repositories/index');
+const { JobApplicationService } = require('../services/index');
+const { JobApplicationRepository } = require('../repositories/index');
 const errorResponse = require('../utils/error_response');
 
-const mediaService = new MediaService(new MediaRepository());
+const jobApplicationService = new JobApplicationService(new JobApplicationRepository());
 
-async function createMedia(req,res) {
+async function createJobApplication(req,res) {
 
     try {
 
-        const response = await mediaService.createMedia(req);
+        const response = await jobApplicationService.createJobApplication(req);
 
         return res
                 .status(StatusCodes.CREATED)
                 .json({
                     success: true,
                     error: {},
-                    message: ReasonPhrases.CREATED + " Media",
+                    message: ReasonPhrases.CREATED + " Job Application",
                     data: response
         });
 
     } catch(error) {
-        console.log("MediaController: Something went wrong", error);
+        console.log("JobApplicationController: Something went wrong", error);
         return res
                 .status(error.statusCode)
                 .json(errorResponse(error.reason, error));
     }
 }
 
-async function getAllMedias(req,res) {
+async function getAllJobApplications(req,res) {
 
     try {
 
-        const response = await mediaService.getAllMedias(req.query);
+        const response = await jobApplicationService.getAllJobApplications(req.query);
 
         return res
                 .status(StatusCodes.OK)
                 .json({
                     success: true,
                     error: {},
-                    message: ReasonPhrases.OK + " Medias",
+                    message: ReasonPhrases.OK + " Job Applications",
                     data: response
         });
 
     } catch(error) {
-        console.log("MediaController: Something went wrong", error);
+        console.log("JobApplicationController: Something went wrong", error);
         console.log("Errorname", error.name);
         return res  
                 .status(error.statusCode)
@@ -53,23 +53,23 @@ async function getAllMedias(req,res) {
     }
 }
 
-async function getMedia(req,res) {
+async function getJobApplication(req,res) {
 
     try {
 
-        const response = await mediaService.getMedia(req.params.id);
+        const response = await jobApplicationService.getJobApplication(req.params.id);
             
                 return res
                         .status(StatusCodes.OK)
                         .json({
                             sucess: true,
                             error: {},
-                            message: ReasonPhrases.OK + " Media",
+                            message: ReasonPhrases.OK + " Job Application",
                             data: response
         });
 
     } catch (error) {
-        console.log("MediaController: Something went wrong", error);
+        console.log("JobApplicationController: Something went wrong", error);
         console.log("Errorname", error.name);
         return res  
                 .status(error.statusCode)
@@ -77,22 +77,22 @@ async function getMedia(req,res) {
     }
 }
 
-async function updateMedia(req, res) {
+async function updateJobApplication(req, res) {
     try {
 
-        const response = await mediaService.updateMedia(req.params.id, req.body);
+        const response = await jobApplicationService.updateJobApplication(req.params.id, req.body);
 
         return res
             .status(StatusCodes.OK)
             .json({
             success: true,
             error: {},
-            message: ReasonPhrases.OK + " Media",
+            message: ReasonPhrases.OK + " Job Application",
             data: response
         });
 
     } catch (error) {
-        console.log("AtrributeController: Something went wrong", error);
+        console.log("JobApplicationController: Something went wrong", error);
         console.log("Errorname", error.name);
         return res
             .status(error.statusCode)
@@ -100,22 +100,22 @@ async function updateMedia(req, res) {
     }
 }
 
-async function destroyMedia(req, res) {
+async function destroyJobApplication(req, res) {
     try {
 
-        const response = await mediaService.destroyMedia(req.params.id);
+        const response = await jobApplicationService.destroyJobApplication(req.params.id);
 
         return res
             .status(StatusCodes.OK)
             .json({
             success: true,
             error: {},
-            message: ReasonPhrases.OK + " Media",
+            message: ReasonPhrases.OK + " Job Application",
             data: response
         });
 
     } catch (error) {
-        console.log("AtrributeController: Something went wrong", error);
+        console.log("JobApplicationController: Something went wrong", error);
         console.log("Errorname", error.name);
         return res
             .status(error.statusCode)
@@ -124,9 +124,9 @@ async function destroyMedia(req, res) {
 }
 
 module.exports = {
-    createMedia,
-    getAllMedias,
-    getMedia,
-    updateMedia,
-    destroyMedia
+    createJobApplication,
+    getAllJobApplications,
+    getJobApplication,
+    updateJobApplication,
+    destroyJobApplication
 }
