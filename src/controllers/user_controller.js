@@ -87,6 +87,54 @@ async function updateUserDetails(req, res) {
     }
 }
 
+async function forgotPassword(req, res) {
+    try {
+
+        const response = await userService.forgotPassword(req.params.id);
+
+        return res
+                .status(StatusCodes.CREATED)
+                .json({
+                    sucess: true,
+                    error: {},
+                    message: ReasonPhrases.OK + " Forgot Password for User",
+                    data: response
+        });
+
+    } catch(error) {
+
+        console.log("UserController: Something went wrong", error);
+        return res
+                .status(error.statusCode)
+                .json(errorResponse(error.reason, error));
+
+    }
+}
+
+async function resetPassword(req, res) {
+    try {
+
+        const response = await userService.resetPassword(req.params.id, req.body);
+
+        return res
+                .status(StatusCodes.CREATED)
+                .json({
+                    sucess: true,
+                    error: {},
+                    message: ReasonPhrases.OK + " Reset Password for User",
+                    data: response
+        });
+
+    } catch(error) {
+
+        console.log("UserController: Something went wrong", error);
+        return res
+                .status(error.statusCode)
+                .json(errorResponse(error.reason, error));
+
+    }
+}
+
 async function verifyUserRole(req, res) {
     try {
         const response = await userService.verifyUserRole(req);
@@ -183,6 +231,8 @@ module.exports = {
     createUser,
     signin,
     updateUserDetails,
+    forgotPassword,
+    resetPassword,
     verifyUserRole,
     getRoleUnverifiedUsers,
     getAdminUsers,
