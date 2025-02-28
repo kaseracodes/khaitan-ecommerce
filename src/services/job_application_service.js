@@ -7,9 +7,11 @@ class JobApplicationService {
         this.repository = repository;
     }
 
-    async createJobApplication(jobApplication) {
+    async createJobApplication(req) {
         try {
-            const response = await this.repository.createJobApplication(jobApplication.applicantName, jobApplication.applicantEmail, jobApplication.resumeURL, jobApplication.applicationStatus, jobApplication.appliedDate, jobApplication.jobOpeningId);
+            const { applicantName, applicantEmail, appliedDate, jobOpeningId } = req.body;
+            const resumeUrl = req.file.location;
+            const response = await this.repository.createJobApplication(applicantName, applicantEmail, resumeUrl, "Under Review" , appliedDate, jobOpeningId);
             return response;
         } catch(error) {
             console.log("JobApplicationService: ",error);

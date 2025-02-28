@@ -5,10 +5,11 @@ const { isLoggedIn } = require('../../middlewares/auth_middlewares');
 
 const { createJobApplication, getAllJobApplications, getJobApplication, updateJobApplication, destroyJobApplication } = require('../../controllers/job_application_controller');
 const { jobApplicationValidator, updateJobApplicationValidator } = require('../../middlewares/job_application_middleware');
+const uploadMiddleware = require('../../middlewares/cloud_upload_middleware');
 
 const jobApplicationRouter = express.Router();
 
-jobApplicationRouter.post('/', isLoggedIn, jobApplicationValidator, createJobApplication);
+jobApplicationRouter.post('/', uploadMiddleware("resume").single("resume"), createJobApplication);
 jobApplicationRouter.get('/', getAllJobApplications);
 
 jobApplicationRouter.patch('/:id', updateJobApplicationValidator, updateJobApplication);
