@@ -10,7 +10,7 @@ async function createJobApplication(req,res) {
 
     try {
 
-        const response = await jobApplicationService.createJobApplication(req.body);
+        const response = await jobApplicationService.createJobApplication(req);
 
         return res
                 .status(StatusCodes.CREATED)

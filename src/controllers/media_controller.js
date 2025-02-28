@@ -10,7 +10,7 @@ async function createMedia(req,res) {
 
     try {
 
-        const response = await mediaService.createMedia(req.body);
+        const response = await mediaService.createMedia(req);
 
         return res
                 .status(StatusCodes.CREATED)
