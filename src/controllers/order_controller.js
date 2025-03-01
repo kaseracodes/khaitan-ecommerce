@@ -36,11 +36,11 @@ async function updateDeliveryStatus(req, res) {
         const response = await orderService.updateDeliveryStatus(req.user.id, req.params.id, req.body);
     
         return res
-                .status(StatusCodes.CREATED)
+                .status(StatusCodes.OK)
                 .json({
                     sucess: true,
                     error: {},
-                    message: "Created Order successfully",
+                    message: "Updated Delivery Status Successfully",
                     data: response
         });
 
