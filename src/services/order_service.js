@@ -71,7 +71,7 @@ class OrderService {
         }
     }  
     
-    async updateDeliveryStatus(userId, orderId) {
+    async updateDeliveryStatus(userId, orderId, data) {
       try {
         const orderObject = await this.repository.getOrder(orderId);
         if(!orderObject) {
@@ -81,8 +81,10 @@ class OrderService {
         if(orderObject.userId != userId) {
           throw new UnauthorizedError('You are not authorised to do the current operation');
         }
+
+        const { dateOfDelivery } = data;
   
-        const response = await this.repository.updateDeliveryStatus(orderId);
+        const response = await this.repository.updateDeliveryStatus(orderId, dateOfDelivery);
 
         return response;
       } catch(error) {

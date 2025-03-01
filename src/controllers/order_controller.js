@@ -33,7 +33,7 @@ async function createOrder(req, res) {
 async function updateDeliveryStatus(req, res) {
 
     try {
-        const response = await orderService.updateDeliveryStatus(req.user.id, req.params.id);
+        const response = await orderService.updateDeliveryStatus(req.user.id, req.params.id, req.body);
     
         return res
                 .status(StatusCodes.CREATED)

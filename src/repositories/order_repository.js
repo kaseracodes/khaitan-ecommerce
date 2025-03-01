@@ -49,13 +49,13 @@ class OrderRepository {
         }
     }
 
-    async updateDeliveryStatus(orderId) {
+    async updateDeliveryStatus(orderId, dateOfDelivery) {
         try {
 
             await Order.update(
                 {
                     deliveryStatus: 'delivered',
-                    dateOfDelivery: new Date()
+                    dateOfDelivery: dateOfDelivery
                 },
                 {
                     where: { id: orderId }
