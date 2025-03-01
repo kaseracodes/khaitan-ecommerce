@@ -1,6 +1,7 @@
 const ForbiddenError = require("../errors/forbidden_error");
 const InternalServerError = require("../errors/internal_server_error");
 const NotFoundError = require("../errors/not_found_error");
+const UnauthorizedError = require("../errors/unauthorized_error");
 
 class OrderService {
 
@@ -9,7 +10,7 @@ class OrderService {
       this.cartRepository = cartRepository;
     }
   
-    async createOrder(userId) {
+    async createOrder(userId, data) {
         try {
             // 1. Check if there is a cart for the user or not ?
             const cart = await this.cartRepository.getCartByUser(userId);
@@ -30,7 +31,8 @@ class OrderService {
             console.log("Total Price: ", totalPrice);
     
             // 3. Create a new empty order
-            const order = await this.repository.createOrder(userId, 'pending', totalPrice);
+            const { expectedDeliveryDate } = data;
+            const order = await this.repository.createOrder(userId, 'pending', totalPrice, 'processing', expectedDeliveryDate, null);
     
             // 4. Now use the order ID to add order products
             const orderProductsBulkCreateArray = cartProducts.map(product => {
@@ -67,7 +69,32 @@ class OrderService {
             console.log("OrderService: ",error);
             throw new InternalServerError();
         }
-    }    
+    }  
+    
+    async updateDeliveryStatus(userId, orderId, data) {
+      try {
+        const orderObject = await this.repository.getOrder(orderId);
+        if(!orderObject) {
+          throw new NotFoundError('Order', 'order id', orderId);
+        }
+  
+        if(orderObject.userId != userId) {
+          throw new UnauthorizedError('You are not authorised to do the current operation');
+        }
+
+        const { dateOfDelivery } = data;
+  
+        const response = await this.repository.updateDeliveryStatus(orderId, dateOfDelivery);
+
+        return response;
+      } catch(error) {
+        if(error.name === "NotFoundError" || error.name === "UnauthorizedError") {
+          throw error;
+        }
+        console.log("OrderService: ",error);
+        throw new InternalServerError();
+      }
+    }
   
     async fetchOrderDetails(userId, orderId) {
       try {
@@ -85,6 +112,9 @@ class OrderService {
           id: response.id,
           status: response.status,
           totalPrice: response.totalPrice,
+          deliveryStatus: response.deliveryStatus,
+          expectedDeliveryDate: response.expectedDeliveryDate,
+          dateOfDelivery: response.dateOfDelivery,
           createdAt: response.createdAt,
           updatedAt: response.updatedAt
         }; 
