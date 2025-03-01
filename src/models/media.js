@@ -31,7 +31,7 @@ const Media = db.define('media', {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
-            model: 'Products',
+            model: 'products',
             key: 'id'
         }
     },
