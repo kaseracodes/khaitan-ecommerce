@@ -4,7 +4,7 @@ const { OrderController } = require('../../controllers/index');
 const { isLoggedIn } = require('../../middlewares/auth_middlewares');
 
 
-const { createOrder, getOrdersDetailsForAllUsers, getOrdersDetailsForUser, getOrder }  = OrderController;
+const { createOrder, getOrdersDetailsForAllUsers, getOrdersDetailsForUser, getOrder, updateDeliveryStatus }  = OrderController;
 
 const orderRouter = express.Router();
 
@@ -13,4 +13,5 @@ orderRouter.post('/', isLoggedIn, createOrder); // mapping a route to a controll
 orderRouter.get('/admin', isLoggedIn, getOrdersDetailsForAllUsers);
 orderRouter.get('/user', isLoggedIn, getOrdersDetailsForUser);
 orderRouter.get('/:id', isLoggedIn, getOrder);
+orderRouter.patch('/:id', isLoggedIn, updateDeliveryStatus);
 module.exports = orderRouter;

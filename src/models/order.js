@@ -9,6 +9,12 @@ const Order = db.define('order', {
         }),
         allowNull: false,
     },
+    deliveryStatus: {
+        type: Sequelize.ENUM({
+            values: ['processing', 'delivered'],
+        }),
+        allowNull: false,
+    },
     userId: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -21,6 +27,14 @@ const Order = db.define('order', {
         type: Sequelize.INTEGER,
         allowNull: true,
         defaultValue: 0
+    },
+    expectedDeliveryDate: {
+        type: Sequelize.DATE,
+        allowNull: false,
+    },
+    dateOfDelivery: {
+        type: Sequelize.DATE,
+        allowNull: true
     }
 });
 

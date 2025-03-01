@@ -10,7 +10,30 @@ const orderService = new OrderService(new OrderRepository(), new CartRepository(
 async function createOrder(req, res) {
 
     try {
-        const response = await orderService.createOrder(req.user.id);
+        const response = await orderService.createOrder(req.user.id, req.body);
+    
+        return res
+                .status(StatusCodes.CREATED)
+                .json({
+                    sucess: true,
+                    error: {},
+                    message: "Created Order successfully",
+                    data: response
+        });
+
+    } catch(error) {
+        console.log("OrderController: Something went wrong", error);
+        return res
+                .status(error.statusCode)
+                .json(errorResponse(error.reason, error));
+    }
+
+}
+
+async function updateDeliveryStatus(req, res) {
+
+    try {
+        const response = await orderService.updateDeliveryStatus(req.user.id, req.params.id, req.body);
     
         return res
                 .status(StatusCodes.CREATED)
@@ -95,6 +118,7 @@ async function getOrdersDetailsForUser(req,res) {
 
 module.exports = {
     createOrder,
+    updateDeliveryStatus,
     getOrder,
     getOrdersDetailsForAllUsers,
     getOrdersDetailsForUser
