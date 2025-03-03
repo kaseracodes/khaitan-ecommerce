@@ -31,8 +31,8 @@ class OrderService {
             console.log("Total Price: ", totalPrice);
     
             // 3. Create a new empty order
-            const { expectedDeliveryDate } = data;
-            const order = await this.repository.createOrder(userId, 'pending', totalPrice, 'processing', expectedDeliveryDate, null);
+            const { expectedDeliveryDate, deliveryAddress } = data;
+            const order = await this.repository.createOrder(userId, 'pending', totalPrice, 'processing', expectedDeliveryDate, null, deliveryAddress);
     
             // 4. Now use the order ID to add order products
             const orderProductsBulkCreateArray = cartProducts.map(product => {
