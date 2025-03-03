@@ -37,9 +37,9 @@ async function signin(req, res) {
 
     try {
         
-        const response = await userService.signinUser(req.body);
+        const { user, token } = await userService.signinUser(req.body);
 
-        res.cookie('token', response, {
+        res.cookie('token', token, {
             httpOnly: true, 
             maxAge: 7 * 24 * 60 * 60 * 1000,
             secure: NODE_ENV == 'production'
@@ -51,7 +51,7 @@ async function signin(req, res) {
                     sucess: true,
                     error: {},
                     message: "Successfully signed in",
-                    data: (NODE_ENV == 'production') ? true : response
+                    data: (NODE_ENV == 'production') ? user : { user, token }
         });
 
     } catch(error) {
