@@ -68,11 +68,20 @@ class UserService {
             if((user.roleId != 1) && (!user.isRoleVerified)){
                 throw new ForbiddenError('Admin Panel', 'signin', 'Role unverified')
             }
-            return generateJWT({
+
+            const token = generateJWT({
                 email: user.email, 
                 id: user.id, 
                 roleId: user.roleId
             });
+
+            const userDetails = await this.getUser(user.id);
+
+            return {
+                user: userDetails,
+                token
+            };
+
         } catch(error) {
             console.log("UserService: ",error);
             if(error.name === "NotFoundError" || error.name === "UnauthorizedError" || error.name === "ForbiddenError") {
