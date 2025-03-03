@@ -268,6 +268,22 @@ async function changeUserRole(req, res) {
     }
 }
 
+async function getUserProfile(req, res) {
+    try {
+        const user = await userService.getUser(req.user.id);
+        return res.status(StatusCodes.OK).json({
+            success: true,
+            error: {},
+            message: "Successfully fetched user profile",
+            data: user,
+        });
+    } catch (error) {
+        console.log("UserController: Something went wrong", error);
+        return res
+            .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+            .json(errorResponse(error.reason || ReasonPhrases.INTERNAL_SERVER_ERROR, error));
+    }
+}
 
 module.exports = {
     createUser,
@@ -281,5 +297,6 @@ module.exports = {
     getRoleUnverifiedUsers,
     getAdminUsers,
     getRegularUsers,
-    changeUserRole
+    changeUserRole,
+    getUserProfile
 }

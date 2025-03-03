@@ -57,13 +57,17 @@ class UserRepository {
 
     async getUser(id) {
         try {
-            const response = await User.findByPk(id);
-            return response;
-        } catch(error) {
+            const response = await User.findByPk(id, {
+                attributes: { exclude: ['password'] }
+            });
+    
+            return { ...response.toJSON(), cartId: response.id };
+        } catch (error) {
             console.log(error);
             throw error;
         }
     }
+    
 
     async getUserByEmail(email) {
         try {
