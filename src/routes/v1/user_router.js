@@ -4,7 +4,7 @@ const { UserController } = require('../../controllers/index');
 const { isLoggedIn } = require('../../middlewares/auth_middlewares');
 
 
-const { createUser, signin, updateUserDetails, forgotPassword, resetPassword, verifyUserRole, verifyUserOTP, resendUserOTP, getRoleUnverifiedUsers, getAdminUsers, getRegularUsers, changeUserRole }  = UserController;
+const { createUser, signin, updateUserDetails, forgotPassword, resetPassword, verifyUserRole, verifyUserOTP, resendUserOTP, getRoleUnverifiedUsers, getAdminUsers, getRegularUsers, changeUserRole, getUserProfile }  = UserController;
 
 
 const userRouter = express.Router();
@@ -22,5 +22,6 @@ userRouter.get("/unverified/role", isLoggedIn, getRoleUnverifiedUsers);
 userRouter.get("/admins", getAdminUsers);
 userRouter.get("/regular", getRegularUsers);
 userRouter.patch('/:id/role', changeUserRole);
+userRouter.get('/profile', isLoggedIn, getUserProfile);
    
 module.exports = userRouter;
