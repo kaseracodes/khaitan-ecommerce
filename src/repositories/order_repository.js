@@ -22,7 +22,7 @@ class OrderRepository {
         }
     }
 
-    async createOrder(userId, status, totalPrice, deliveryStatus, expectedDeliveryDate, dateOfDelivery) {
+    async createOrder(userId, status, totalPrice, deliveryStatus, expectedDeliveryDate, dateOfDelivery, deliveryAddress) {
         try {
             const response = await Order.create({
                 userId,
@@ -30,7 +30,8 @@ class OrderRepository {
                 totalPrice,
                 deliveryStatus, 
                 expectedDeliveryDate, 
-                dateOfDelivery
+                dateOfDelivery,
+                deliveryAddress
             });
             return response;
         } catch(error) {
