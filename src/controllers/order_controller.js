@@ -15,7 +15,7 @@ async function createOrder(req, res) {
         return res
                 .status(StatusCodes.CREATED)
                 .json({
-                    sucess: true,
+                    success: true,
                     error: {},
                     message: "Created Order successfully",
                     data: response
@@ -28,6 +28,29 @@ async function createOrder(req, res) {
                 .json(errorResponse(error.reason, error));
     }
 
+}
+
+async function verifyPayment(req, res) {
+    try {
+        console.log("Body: ", req.body);
+        console.log("User Id: ", req.user.id);
+        
+        const response = await orderService.verifyPayment(req.user.id, req.body);
+    
+        return res
+                .status(StatusCodes.OK)
+                .json({
+                    success: true,
+                    error: {},
+                    message: "Verified Payment successfully",
+                    data: response
+        });
+    } catch (error) {
+        console.log("OrderController: Something went wrong", error);
+        return res
+                .status(error.statusCode)
+                .json(errorResponse(error.reason, error));
+    }
 }
 
 async function updateDeliveryStatus(req, res) {
@@ -121,5 +144,6 @@ module.exports = {
     updateDeliveryStatus,
     getOrder,
     getOrdersDetailsForAllUsers,
-    getOrdersDetailsForUser
+    getOrdersDetailsForUser,
+    verifyPayment
 }
