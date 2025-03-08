@@ -1,5 +1,5 @@
 const { Order, OrderProducts, Product } = require('../models/index');
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 
 class OrderRepository {
     async getOrders() {
@@ -22,7 +22,22 @@ class OrderRepository {
         }
     }
 
-    async createOrder(userId, status, totalPrice, deliveryStatus, expectedDeliveryDate, dateOfDelivery, deliveryAddress) {
+    async getOrderByRazorpayId(id) {
+        try {
+            const order = await Order.findOne({
+                where: {
+                    razorpayOrderId: id
+                }
+            });
+
+            return order;
+        } catch(error) {
+            console.log(error);
+            throw error;
+        }
+    }
+
+    async createOrder(userId, status, totalPrice, deliveryStatus, expectedDeliveryDate, dateOfDelivery, deliveryAddress, razorpayOrderId) {
         try {
             const response = await Order.create({
                 userId,
@@ -31,7 +46,8 @@ class OrderRepository {
                 deliveryStatus, 
                 expectedDeliveryDate, 
                 dateOfDelivery,
-                deliveryAddress
+                deliveryAddress,
+                razorpayOrderId
             });
             return response;
         } catch(error) {
