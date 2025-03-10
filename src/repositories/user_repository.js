@@ -1,6 +1,6 @@
 const { Op } = require("sequelize");
 
-const { User, Role } = require('../models/index');
+const { User, Role, Cart } = require('../models/index');
 
 const otpCache = require("../cache/otp_cache");
 
@@ -60,8 +60,12 @@ class UserRepository {
             const response = await User.findByPk(id, {
                 attributes: { exclude: ['password'] }
             });
+
+            const cart = await Cart.findOne({
+                where: { userId: id }
+            });
     
-            return { ...response.toJSON(), cartId: response.id };
+            return { ...response.toJSON(), cartId: cart.id };
         } catch (error) {
             console.log(error);
             throw error;
