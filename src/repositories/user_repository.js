@@ -87,14 +87,16 @@ class UserRepository {
         }
     }
 
-    async createUser(email, password, name, phoneNumber, roleId) {
+    async createUser(email, password, name, phoneNumber, roleId, dateOfBirth, gender) {
         try {
             const response = await User.create({
                 email,
                 password,
                 name, 
                 phoneNumber, 
-                roleId
+                roleId,
+                dateOfBirth,
+                gender
             });
             return response;
         } catch(error) {
@@ -103,11 +105,13 @@ class UserRepository {
         }
     }
 
-    async updateUserDetails(id, name) {
+    async updateUserDetails(id, name, dateOfBirth, gender) {
         try {
             const rowsUpdated = await User.update(
                 { 
                     name, 
+                    dateOfBirth,
+                    gender
                 },
                 { 
                     where: { id }
