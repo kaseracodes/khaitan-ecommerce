@@ -21,7 +21,7 @@ class UserService {
 
     async createUser(user) {
         try {
-            const response = await this.respository.createUser(user.email, user.password, user.name, user.phoneNumber, user.roleId);
+            const response = await this.respository.createUser(user.email, user.password, user.name, user.phoneNumber, user.roleId, user.dateOfBirth, user.gender);
             await this.cartRepository.createCart(response.id);
             otpCache.createOTP(response.id);
             return response;
@@ -143,9 +143,9 @@ class UserService {
 
     async updateUserDetails(userId, data) {
         try {
-            const { name } = data;
+            const { name, dateOfBirth, gender } = data;
 
-            const response = await this.respository.updateUserDetails(userId, name);
+            const response = await this.respository.updateUserDetails(userId, name, dateOfBirth, gender);
             if(!response) {
                 // we were not able to find anything
                 console.log("UserService: ", userId, "not found");

@@ -53,6 +53,16 @@ const User = db.define('user', {
     isUserVerified: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
+    },
+    dateOfBirth: {
+        type: Sequelize.DATE,
+        allowNull: true,
+    },
+    gender: {
+        type: Sequelize.ENUM({
+            values: ['Male', 'Female', 'Other']
+        }),
+        allowNull: true
     }
 }, {
     hooks: {
