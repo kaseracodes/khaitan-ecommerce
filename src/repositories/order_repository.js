@@ -102,7 +102,7 @@ class OrderRepository {
                         attributes: ['quantity']
                     }
                 },
-                attributes: ['id', 'status', 'totalPrice' , 'deliveryStatus', 'expectedDeliveryDate', 'dateOfDelivery', 'createdAt', 'updatedAt'],
+                attributes: ['id', 'userId', 'status', 'totalPrice', 'deliveryStatus', 'expectedDeliveryDate', 'dateOfDelivery', 'createdAt', 'updatedAt', 'deliveryAddress', 'razorpayOrderId'],
             });
             return response;
         } catch(error) {
@@ -110,70 +110,73 @@ class OrderRepository {
             throw error;
         }
     }
-
+    
     async getOrderDetails(userId, limit, offset, status) {
         try {
             const filter = {};
-
+    
             if (limit) {
-            filter.limit = limit;
+                filter.limit = limit;
             }
             if (offset) {
-            filter.offset = offset;
+                filter.offset = offset;
             }
-
+    
             const whereClause = {};
-
+    
             if (userId !== null) {
-            whereClause.userId = userId;
+                whereClause.userId = userId;
             }
-
+    
             if (status) {
-            whereClause.status = { [Op.eq]: status };
+                whereClause.status = { [Op.eq]: status };
             }
-
+    
             const queryOptions = {
-            where: whereClause,
-            include: {
-                model: Product,
-                attributes: ['title', 'id', 'price'],
-                through: {
-                model: OrderProducts,
-                attributes: ['quantity']
-                }
-            },
-            ...filter,
-            attributes: ['id', 'userId', 'status', 'totalPrice', 'deliveryStatus', 'expectedDeliveryDate', 'dateOfDelivery', 'createdAt', 'updatedAt'],
+                where: whereClause,
+                include: {
+                    model: Product,
+                    attributes: ['title', 'id', 'price'],
+                    through: {
+                        model: OrderProducts,
+                        attributes: ['quantity']
+                    }
+                },
+                ...filter,
+                attributes: ['id', 'userId', 'status', 'totalPrice', 'deliveryStatus', 'expectedDeliveryDate', 'dateOfDelivery', 'createdAt', 'updatedAt', 'deliveryAddress', 'razorpayOrderId'],
             };
-
+    
             const response = await Order.findAll(queryOptions);
-
+    
             if (userId !== null) {
-            return response.map(order => ({
+                return response.map(order => ({
                     id: order.id,
                     status: order.status,
                     totalPrice: order.totalPrice,
                     deliveryStatus: order.deliveryStatus,
                     expectedDeliveryDate: order.expectedDeliveryDate,
-                    dayOfDelivery: order.dateOfDelivery,
+                    dateOfDelivery: order.dateOfDelivery,
                     createdAt: order.createdAt,
                     updatedAt: order.updatedAt,
+                    deliveryAddress: order.deliveryAddress,
+                    razorpayOrderId: order.razorpayOrderId,
                     products: order.products.map(product => ({
-                    title: product.title,
-                    price: product.price,
-                    id: product.id,
-                    quantity: product.order_products.quantity,
-                })),
-            }));
+                        title: product.title,
+                        price: product.price,
+                        id: product.id,
+                        quantity: product.order_products.quantity,
+                    })),
+                }));
             }
-
+    
             return response;
-
+    
         } catch (error) {
             console.log(error);
             throw error;
         }
     }
+    
   
 }   
 
