@@ -162,13 +162,16 @@ class OrderService {
         const response = await this.repository.fetchOrderDetails(orderId);
         const order = {
           id: response.id,
+          userId: response.userId,
           status: response.status,
           totalPrice: response.totalPrice,
           deliveryStatus: response.deliveryStatus,
           expectedDeliveryDate: response.expectedDeliveryDate,
           dateOfDelivery: response.dateOfDelivery,
           createdAt: response.createdAt,
-          updatedAt: response.updatedAt
+          updatedAt: response.updatedAt,
+          deliveryAddress: response.deliveryAddress,
+          razorpayOrderId: response.razorpayOrderId,
         }; 
         order.products = response.products.map(product => {
           return {
