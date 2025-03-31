@@ -13,6 +13,11 @@ const { registerHooks } = require('./models/hooks');
 
 const app = express();
 
+app.use(cors({
+    origin: ['http://localhost:5173', 'https://d57ts81kncgja.cloudfront.net/ '],
+    credentials: true,
+}));
+
 // app.use(responseTime(function f(req, res, time) {
 //     console.log("Time elapsed = ", time);
 //     res.setHeader('X-Response-Time', time);
