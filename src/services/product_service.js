@@ -61,10 +61,10 @@ class ProductService {
         
     }
 
-    async addAttributeToProduct(data) {
+    async addAttributeToProduct(id, data) {
         try {
 
-            const { id, attributeId, value } = data;
+            const { attributeId, value } = data;
 
             const response = await this.repository.addAttributeToProduct(id, attributeId, value);
             if(!response) {

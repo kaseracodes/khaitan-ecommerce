@@ -37,9 +37,9 @@ async function signin(req, res) {
 
     try {
         
-        const response = await userService.signinUser(req.body);
+        const { user, token } = await userService.signinUser(req.body);
 
-        res.cookie('token', response, {
+        res.cookie('token', token, {
             httpOnly: true, 
             maxAge: 7 * 24 * 60 * 60 * 1000,
             secure: NODE_ENV == 'production'
@@ -51,7 +51,7 @@ async function signin(req, res) {
                     sucess: true,
                     error: {},
                     message: "Successfully signed in",
-                    data: (NODE_ENV == 'production') ? true : response
+                    data: (NODE_ENV == 'production') ? user : { user, token }
         });
 
     } catch(error) {
@@ -268,6 +268,22 @@ async function changeUserRole(req, res) {
     }
 }
 
+async function getUserProfile(req, res) {
+    try {
+        const user = await userService.getUser(req.user.id);
+        return res.status(StatusCodes.OK).json({
+            success: true,
+            error: {},
+            message: "Successfully fetched user profile",
+            data: user,
+        });
+    } catch (error) {
+        console.log("UserController: Something went wrong", error);
+        return res
+            .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+            .json(errorResponse(error.reason || ReasonPhrases.INTERNAL_SERVER_ERROR, error));
+    }
+}
 
 module.exports = {
     createUser,
@@ -281,5 +297,6 @@ module.exports = {
     getRoleUnverifiedUsers,
     getAdminUsers,
     getRegularUsers,
-    changeUserRole
+    changeUserRole,
+    getUserProfile
 }

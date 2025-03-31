@@ -11,8 +11,14 @@ JWT_EXPIRY=1h
 NODE_ENV=development
 
 OTP_TTL = 300
+BLACKLISTED_TOKEN_TTL = 3600 // SHOULD BE SAME AS JWT_EXPIRY
 
 AWS_ACCESS_KEY_ID=<your-access-key-id>
 AWS_SECRET_ACCESS_KEY=<your-secret-access-key>
 AWS_REGION=<your-aws-region>
 AWS_S3_BUCKET=<your-s3-bucket>
+
+RAZORPAY_KEY_ID=<your-razorpay-key>
+RAZORPAY_KEY_SECRET=<your-razorpay-secret>
+
+RESEND_API_KEY=<your-resend-key>

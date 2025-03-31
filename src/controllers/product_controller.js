@@ -33,7 +33,7 @@ async function createProduct(req, res) {
 async function addAttributeToProduct(req, res) {
     try {
 
-        const response = await productService.addAttributeToProduct(req.body);
+        const response = await productService.addAttributeToProduct(req.params.id, req.body);
 
         return res
                 .status(StatusCodes.CREATED)

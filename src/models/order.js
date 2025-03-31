@@ -35,6 +35,14 @@ const Order = db.define('order', {
     dateOfDelivery: {
         type: Sequelize.DATE,
         allowNull: true
+    },
+    deliveryAddress: {
+        type: Sequelize.TEXT,
+        allowNull: false
+    },
+    razorpayOrderId: {
+        type: Sequelize.STRING,
+        allowNull: false
     }
 });
 
