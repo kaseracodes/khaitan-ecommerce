@@ -20,7 +20,7 @@ const Attribute = db.define('attribute', {
     },
     dataType: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
     },
     unit: {
         type: Sequelize.STRING,
