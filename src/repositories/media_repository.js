@@ -4,15 +4,19 @@ const { Op } = require("sequelize");
 class MediaRepository {
     async getMedias(name, utility) {
         try {
-            name = name != null ? String(name) : '';
-            utility = utility != null ? String(utility) : '';
+            name = name !== undefined && name !== null ? String(name).trim() : null;
+            utility = utility !== undefined && utility !== null ? String(utility).trim() : null;
+            console.log("Querying Media with:", { name, utility });
+    
+            const whereCondition = {};
+            if (name)   whereCondition.name = { [Op.like]: `%${name}%` };
+            if (utility)    whereCondition.utility = { [Op.like]: `%${utility}%` };
     
             const mediaItems = await Media.findAll({
-                where: {
-                    name: { [Op.like]: `%${name}%` },
-                    utility: { [Op.like]: `%${utility}%` }
-                }
+                where: Object.keys(whereCondition).length > 0 ? whereCondition : undefined, // Avoid empty where clause
             });
+    
+            console.log("MediaRepository: Found Media", mediaItems);
     
             if (!mediaItems || mediaItems.length === 0) {
                 console.warn("MediaRepository: No media found");
@@ -25,7 +29,8 @@ class MediaRepository {
             console.error("MediaRepository: Error fetching media", error);
             throw error;
         }
-    }    
+    }
+        
 
     async getMedia(id) {
         try {
