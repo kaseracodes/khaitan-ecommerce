@@ -1,6 +1,8 @@
 const Razorpay = require("razorpay")
 const crypto = require("crypto");
 
+const { sendOrderConfirmationEmail } = require("../services/email_service");
+
 const ForbiddenError = require("../errors/forbidden_error");
 const InternalServerError = require("../errors/internal_server_error");
 const NotFoundError = require("../errors/not_found_error");
@@ -14,9 +16,10 @@ const razorpay = new Razorpay({
 
 class OrderService {
 
-  constructor(repository, cartRepository) {
+  constructor(repository, cartRepository, userRepository) {
       this.repository = repository;
       this.cartRepository = cartRepository;
+      this.userRepository = userRepository;
     }
   
     async createOrder(userId, data) {
@@ -113,6 +116,11 @@ class OrderService {
             await this.cartRepository.clearCart(cart.id);
         }
 
+        const user = await this.userRepository.getUserById(userId);
+        if (!user) {
+          throw new NotFoundError("User", "id", userId);
+        }
+        await sendOrderConfirmationEmail(user.email, order, user.name);
         return order;
       } catch (error) {
         if(error.name === "NotFoundError" || error.name === "UnauthorizedError") {
