@@ -67,12 +67,34 @@ async function sendPasswordResetConfirmationEmail(to) {
   return sendEmail(to, subject, htmlContent);
 }
 
+async function sendOrderConfirmationEmail(to, order, userName) {
+  const subject = '🎉 Order Confirmed – Khaitan';
+  const htmlContent = `
+    <p>Hi ${userName || 'Customer'},</p>
+    <p>Thank you for your order! Your payment has been confirmed successfully.</p>
 
+    <h3>🧾 Order Details</h3>
+    <ul>
+      <li><strong>Order ID:</strong> ${order.id}</li>
+      <li><strong>Total Price:</strong> ₹${order.totalPrice}</li>
+      <li><strong>Status:</strong> ${order.status}</li>
+      <li><strong>Delivery Status:</strong> ${order.deliveryStatus}</li>
+      <li><strong>Expected Delivery:</strong> ${new Date(order.expectedDeliveryDate).toLocaleDateString()}</li>
+      <li><strong>Delivery Address:</strong> ${order.deliveryAddress}</li>
+    </ul>
+
+    <p>If you have any questions, reply to this email or contact <a href="mailto:developers@khaitan.com">developers@khaitan.com</a>.</p>
+    <p>Cheers,<br/>Team Khaitan</p>
+  `;
+
+  return sendEmail(to, subject, htmlContent);
+}
 
 module.exports = { 
   sendEmail, 
   sendSignupOTPEmail, 
   sendPasswordResetLinkEmail, 
   sendPasswordResetTokenEmail ,
-  sendPasswordResetConfirmationEmail
+  sendPasswordResetConfirmationEmail,
+  sendOrderConfirmationEmail
 };
