@@ -1,5 +1,7 @@
 const bcrypt = require('bcrypt');
 
+const { sendSignupOTPEmail, sendPasswordResetTokenEmail, sendPasswordResetConfirmationEmail } = require("../services/email_service");
+
 const BadRequest = require("../errors/bad_request_error");
 const ConflictError = require("../errors/conflict_error");
 const InternalServerError = require("../errors/internal_server_error");
@@ -21,9 +23,10 @@ class UserService {
 
     async createUser(user) {
         try {
-            const response = await this.respository.createUser(user.email, user.password, user.name, user.phoneNumber, user.roleId);
+            const response = await this.respository.createUser(user.email, user.password, user.name, user.phoneNumber, user.roleId, user.dateOfBirth, user.gender);
             await this.cartRepository.createCart(response.id);
-            otpCache.createOTP(response.id);
+            const otp = otpCache.createOTP(response.id);
+            await sendSignupOTPEmail(user.email, otp);
             return response;
         } catch(error) {
             console.log("UserService: ", error.name);
@@ -43,7 +46,6 @@ class UserService {
             console.log("UserService: ",error);
             throw new InternalServerError();
         }
-        
     }
 
     async signinUser(userRequestObject) {
@@ -68,11 +70,20 @@ class UserService {
             if((user.roleId != 1) && (!user.isRoleVerified)){
                 throw new ForbiddenError('Admin Panel', 'signin', 'Role unverified')
             }
-            return generateJWT({
+
+            const token = generateJWT({
                 email: user.email, 
                 id: user.id, 
                 roleId: user.roleId
             });
+
+            const userDetails = await this.getUser(user.id);
+
+            return {
+                user: userDetails,
+                token
+            };
+
         } catch(error) {
             console.log("UserService: ",error);
             if(error.name === "NotFoundError" || error.name === "UnauthorizedError" || error.name === "ForbiddenError") {
@@ -134,9 +145,9 @@ class UserService {
 
     async updateUserDetails(userId, data) {
         try {
-            const { name } = data;
+            const { name, dateOfBirth, gender } = data;
 
-            const response = await this.respository.updateUserDetails(userId, name);
+            const response = await this.respository.updateUserDetails(userId, name, dateOfBirth, gender);
             if(!response) {
                 // we were not able to find anything
                 console.log("UserService: ", userId, "not found");
@@ -161,7 +172,7 @@ class UserService {
             }
 
             const token = generateJWT({id: userId, type: 'password-reset'});
-
+            await sendPasswordResetTokenEmail(user.email, token);
             console.log(token);
 
             return token;
@@ -198,6 +209,8 @@ class UserService {
             const encryptedNewPassword = await bcrypt.hash(newPassword, salt);
     
             await this.respository.updateUser(userId, { password: encryptedNewPassword });
+
+            await sendPasswordResetConfirmationEmail(user.email);
         } catch (error) {
             console.log("UserService: ",error);
             if (error.name === "NotFoundError" || error.name === "ForbiddenError") {
@@ -283,9 +296,13 @@ class UserService {
 
     async resendUserOTP(req) {
         try {
-            const newOtp = otpCache.createOTP(req.params.id);
-
-            console.log(`New OTP Created for User ${req.params.id}: ${newOtp}`);
+            const user = await this.respository.getUser(req.params.id);
+            if (!user) {
+                throw new NotFoundError("User not found");
+            }
+            const newOtp = otpCache.createOTP(user.id);
+            await emailService.sendSignupOTPEmail(user.email, newOtp);
+            console.log(`New OTP Created for User ${user.id}: ${newOtp}`);
         } catch (error) {
             console.log("UserService: Error resending OTP", error);
             if (error.name === "NotFoundError" || error.name === "ForbiddenError") {

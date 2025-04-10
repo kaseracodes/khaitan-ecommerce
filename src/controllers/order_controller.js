@@ -1,11 +1,11 @@
 const { StatusCodes, ReasonPhrases } = require('http-status-codes');
 
 const { OrderService }  = require('../services/index');
-const { OrderRepository, CartRepository } = require('../repositories/index');
+const { OrderRepository, CartRepository, UserRepository} = require('../repositories/index');
 
 const errorResponse = require('../utils/error_response');
 
-const orderService = new OrderService(new OrderRepository(), new CartRepository());
+const orderService = new OrderService(new OrderRepository(), new CartRepository(), new UserRepository());
 
 async function createOrder(req, res) {
 
@@ -15,7 +15,7 @@ async function createOrder(req, res) {
         return res
                 .status(StatusCodes.CREATED)
                 .json({
-                    sucess: true,
+                    success: true,
                     error: {},
                     message: "Created Order successfully",
                     data: response
@@ -30,17 +30,40 @@ async function createOrder(req, res) {
 
 }
 
+async function verifyPayment(req, res) {
+    try {
+        console.log("Body: ", req.body);
+        console.log("User Id: ", req.user.id);
+        
+        const response = await orderService.verifyPayment(req.user.id, req.body);
+    
+        return res
+                .status(StatusCodes.OK)
+                .json({
+                    success: true,
+                    error: {},
+                    message: "Verified Payment successfully",
+                    data: response
+        });
+    } catch (error) {
+        console.log("OrderController: Something went wrong", error);
+        return res
+                .status(error.statusCode)
+                .json(errorResponse(error.reason, error));
+    }
+}
+
 async function updateDeliveryStatus(req, res) {
 
     try {
         const response = await orderService.updateDeliveryStatus(req.user.id, req.params.id, req.body);
     
         return res
-                .status(StatusCodes.CREATED)
+                .status(StatusCodes.OK)
                 .json({
                     sucess: true,
                     error: {},
-                    message: "Created Order successfully",
+                    message: "Updated Delivery Status Successfully",
                     data: response
         });
 
@@ -121,5 +144,6 @@ module.exports = {
     updateDeliveryStatus,
     getOrder,
     getOrdersDetailsForAllUsers,
-    getOrdersDetailsForUser
+    getOrdersDetailsForUser,
+    verifyPayment
 }

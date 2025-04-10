@@ -4,11 +4,6 @@ const BadRequest = require("../errors/bad_request_error");
 const errorResponse = require("../utils/error_response");
 
 function productAttributeValidator(req, res, next) {
-    if(!req.body.productId) {
-        return res
-                .status(StatusCodes.BAD_REQUEST)
-                .json(errorResponse(ReasonPhrases.BAD_REQUEST, new BadRequest("Product Id")))
-    }
 
     if(!req.body.attributeId) {
         return res

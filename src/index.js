@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const responseTime = require('response-time');
@@ -12,6 +13,11 @@ const { accessControlCache } = require("./cache");
 const { registerHooks } = require('./models/hooks');
 
 const app = express();
+
+app.use(cors({
+    origin: ['http://localhost:5173', 'https://d57ts81kncgja.cloudfront.net/ '],
+    credentials: true,
+}));
 
 // app.use(responseTime(function f(req, res, time) {
 //     console.log("Time elapsed = ", time);
