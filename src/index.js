@@ -15,7 +15,7 @@ const { registerHooks } = require('./models/hooks');
 const app = express();
 
 app.use(cors({
-    origin: ['http://localhost:5173', 'https://d57ts81kncgja.cloudfront.net/ '],
+    origin: ['http://localhost:5173', 'https://d57ts81kncgja.cloudfront.net', 'https://d1x5ux3yxrkwei.cloudfront.net'],
     credentials: true,
 }));
 
