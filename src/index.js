@@ -12,12 +12,43 @@ const { syncDbInOrder } = require('./models');
 const { accessControlCache } = require("./cache");
 const { registerHooks } = require('./models/hooks');
 
+// Define all allowed frontend origins
+const allowedOrigins = [
+    'http://localhost:5173',
+  
+    // CloudFront deployments
+    'https://d57ts81kncgja.cloudfront.net',     // user site
+    'https://d1x5ux3yxrkwei.cloudfront.net',     // admin site
+  
+    // Custom domains 
+    // www.khaitan.com is an alias (CNAME) for khaitan.com, and it also resolves the same IP address
+    'https://khaitan.com',
+    'https://www.khaitan.com',
+    'https://admin.khaitan.com',
+    'https://www.admin.khaitan.com',
+];
+
 const app = express();
 
 app.use(cors({
-    origin: ['http://localhost:5173', 'https://d57ts81kncgja.cloudfront.net/ '],
+    origin: function (origin, callback) {
+        // Allow no-origin requests (Postman, server-to-server, etc.)
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error(`Not allowed by CORS: ${origin}`));
+        }
+    },
     credentials: true,
 }));
+
+app.use((err, req, res, next) => {
+    if (err.message && err.message.startsWith("Not allowed by CORS")) {
+      console.warn("Blocked CORS request from:", req.headers.origin);
+      return res.status(403).send("CORS Error: Not allowed");
+    }
+    next(err);
+});
 
 // app.use(responseTime(function f(req, res, time) {
 //     console.log("Time elapsed = ", time);
