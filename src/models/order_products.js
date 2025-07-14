@@ -25,6 +25,10 @@ const OrderProducts = db.define('order_products', {
         type: Sequelize.INTEGER,
         allowNull: false,
         defaultValue: 1
+    },
+    color: {
+        type: Sequelize.STRING,
+        allowNull: true
     }
 });
 
