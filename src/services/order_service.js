@@ -187,7 +187,8 @@ class OrderService {
             title: product.title,
             price: product.price,
             id: product.id,
-            quantity: product.order_products.quantity
+            quantity: product.order_products.quantity,
+            color: product.order_products.color
           }
         }); 
         return order;
