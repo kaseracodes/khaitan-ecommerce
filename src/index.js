@@ -31,7 +31,14 @@ const allowedOrigins = [
 const app = express();
 
 app.use(cors({
-    origin: ['http://localhost:5173', 'https://d57ts81kncgja.cloudfront.net/ '],
+    origin: function (origin, callback) {
+        // Allow no-origin requests (Postman, server-to-server, etc.)
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error(`Not allowed by CORS: ${origin}`));
+        }
+    },
     credentials: true,
 }));
 
