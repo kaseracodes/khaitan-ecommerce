@@ -44,7 +44,7 @@ class OrderService {
 
             // 3. Create Razorpay order
             const razorpayOrder = await razorpay.orders.create({
-                amount: totalPrice * 100,
+                amount: totalPrice * 1.18 * 100,
                 currency: "INR",
                 receipt: `order_rcptid_${Date.now()}`,
                 payment_capture: 1,
@@ -59,7 +59,8 @@ class OrderService {
               return {
                   orderId: order.id,
                   productId: product.id,
-                  quantity: product.cart_products.quantity
+                  quantity: product.cart_products.quantity,
+                  color: product.cart_products.color
               }
             })
     
@@ -116,7 +117,7 @@ class OrderService {
             await this.cartRepository.clearCart(cart.id);
         }
 
-        const user = await this.userRepository.getUserById(userId);
+        const user = await this.userRepository.getUser(userId);
         if (!user) {
           throw new NotFoundError("User", "id", userId);
         }
@@ -186,7 +187,8 @@ class OrderService {
             title: product.title,
             price: product.price,
             id: product.id,
-            quantity: product.order_products.quantity
+            quantity: product.order_products.quantity,
+            color: product.order_products.color
           }
         }); 
         return order;
