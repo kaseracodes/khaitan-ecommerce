@@ -2,6 +2,7 @@ const Razorpay = require("razorpay")
 const crypto = require("crypto");
 
 const { sendOrderConfirmationEmail } = require("../services/email_service");
+const { generateInvoiceNumber } = require('../utils/invoice_generator');
 
 const ForbiddenError = require("../errors/forbidden_error");
 const InternalServerError = require("../errors/internal_server_error");
@@ -52,7 +53,7 @@ class OrderService {
     
             // 4. Create a new empty order
             const { expectedDeliveryDate, deliveryAddress } = data;
-            const order = await this.repository.createOrder(userId, 'pending', totalPrice, 'processing', expectedDeliveryDate, null, deliveryAddress, razorpayOrder.id);
+            const order = await this.repository.createOrder(userId, 'pending', totalPrice, 'processing', expectedDeliveryDate, null, deliveryAddress, razorpayOrder.id, null);
     
             // 5. Now use the order ID to add order products
             const orderProductsBulkCreateArray = cartProducts.map(product => {
@@ -108,6 +109,7 @@ class OrderService {
 
         // 4. Update order status to "succesfull" in the database
         order.status = "succesfull";
+        order.invoiceNumber = generateInvoiceNumber(order.id);
         await order.save();
 
         // 5. Clear cart
@@ -116,7 +118,7 @@ class OrderService {
             await this.cartRepository.clearCart(cart.id);
         }
 
-        const user = await this.userRepository.getUserById(userId);
+        const user = await this.userRepository.getUser(userId);
         if (!user) {
           throw new NotFoundError("User", "id", userId);
         }

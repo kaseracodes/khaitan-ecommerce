@@ -37,7 +37,7 @@ class OrderRepository {
         }
     }
 
-    async createOrder(userId, status, totalPrice, deliveryStatus, expectedDeliveryDate, dateOfDelivery, deliveryAddress, razorpayOrderId) {
+    async createOrder(userId, status, totalPrice, deliveryStatus, expectedDeliveryDate, dateOfDelivery, deliveryAddress, razorpayOrderId, invoiceNumber) {
         try {
             const response = await Order.create({
                 userId,
@@ -47,7 +47,8 @@ class OrderRepository {
                 expectedDeliveryDate, 
                 dateOfDelivery,
                 deliveryAddress,
-                razorpayOrderId
+                razorpayOrderId,
+                invoiceNumber
             });
             return response;
         } catch(error) {
@@ -102,7 +103,7 @@ class OrderRepository {
                         attributes: ['quantity']
                     }
                 },
-                attributes: ['id', 'userId', 'status', 'totalPrice', 'deliveryStatus', 'expectedDeliveryDate', 'dateOfDelivery', 'createdAt', 'updatedAt', 'deliveryAddress', 'razorpayOrderId'],
+                attributes: ['id', 'userId', 'status', 'totalPrice', 'deliveryStatus', 'expectedDeliveryDate', 'dateOfDelivery', 'createdAt', 'updatedAt', 'deliveryAddress', 'razorpayOrderId', 'invoiceNumber'],
             });
             return response;
         } catch(error) {
@@ -143,7 +144,7 @@ class OrderRepository {
                     }
                 },
                 ...filter,
-                attributes: ['id', 'userId', 'status', 'totalPrice', 'deliveryStatus', 'expectedDeliveryDate', 'dateOfDelivery', 'createdAt', 'updatedAt', 'deliveryAddress', 'razorpayOrderId'],
+                attributes: ['id', 'userId', 'status', 'totalPrice', 'deliveryStatus', 'expectedDeliveryDate', 'dateOfDelivery', 'createdAt', 'updatedAt', 'deliveryAddress', 'razorpayOrderId', 'invoiceNumber'],
             };
     
             const response = await Order.findAll(queryOptions);
