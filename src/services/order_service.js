@@ -64,7 +64,8 @@ class OrderService {
               return {
                   orderId: order.id,
                   productId: product.id,
-                  quantity: product.cart_products.quantity
+                  quantity: product.cart_products.quantity,
+                  orderedPrice: product.price
               }
             })
     
@@ -195,7 +196,8 @@ class OrderService {
             price: product.price,
             id: product.id,
             quantity: product.order_products.quantity,
-            gstPercent: product.gstPercent
+            gstPercent: product.gstPercent,
+            orderedPrice: product.order_products.orderedPrice
           }
         }); 
         return order;

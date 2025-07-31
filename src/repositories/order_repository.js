@@ -102,7 +102,7 @@ class OrderRepository {
                     attributes: ['title', 'id', 'price', 'gstPercent'],
                     through: {
                         model: OrderProducts,
-                        attributes: ['quantity']
+                        attributes: ['quantity', 'orderedPrice']
                     }
                 },
                 attributes: ['id', 'userId', 'status', 'subTotal', 'totalGST', 'totalPrice', 'deliveryStatus', 'expectedDeliveryDate', 'dateOfDelivery', 'createdAt', 'updatedAt', 'deliveryAddress', 'razorpayOrderId', 'invoiceNumber'],
@@ -142,7 +142,7 @@ class OrderRepository {
                     attributes: ['title', 'id', 'price', 'gstPercent'],
                     through: {
                         model: OrderProducts,
-                        attributes: ['quantity']
+                        attributes: ['quantity', 'orderedPrice']
                     }
                 },
                 ...filter,
@@ -170,6 +170,7 @@ class OrderRepository {
                         price: product.price,
                         id: product.id,
                         quantity: product.order_products.quantity,
+                        orderedPrice: product.order_products.orderedPrice,
                         gstPercent: product.gstPercent
                     })),
                 }));
