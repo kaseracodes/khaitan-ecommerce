@@ -37,11 +37,13 @@ class OrderRepository {
         }
     }
 
-    async createOrder(userId, status, totalPrice, deliveryStatus, expectedDeliveryDate, dateOfDelivery, deliveryAddress, razorpayOrderId, invoiceNumber) {
+    async createOrder(userId, status, subTotal, totalGST, totalPrice, deliveryStatus, expectedDeliveryDate, dateOfDelivery, deliveryAddress, razorpayOrderId, invoiceNumber) {
         try {
             const response = await Order.create({
                 userId,
                 status,
+                subTotal,
+                totalGST,
                 totalPrice,
                 deliveryStatus, 
                 expectedDeliveryDate, 
@@ -97,13 +99,13 @@ class OrderRepository {
                 },
                 include: {
                     model: Product,
-                    attributes: ['title', 'id', 'price'],
+                    attributes: ['title', 'id', 'price', 'gstPercent'],
                     through: {
                         model: OrderProducts,
                         attributes: ['quantity']
                     }
                 },
-                attributes: ['id', 'userId', 'status', 'totalPrice', 'deliveryStatus', 'expectedDeliveryDate', 'dateOfDelivery', 'createdAt', 'updatedAt', 'deliveryAddress', 'razorpayOrderId', 'invoiceNumber'],
+                attributes: ['id', 'userId', 'status', 'subTotal', 'totalGST', 'totalPrice', 'deliveryStatus', 'expectedDeliveryDate', 'dateOfDelivery', 'createdAt', 'updatedAt', 'deliveryAddress', 'razorpayOrderId', 'invoiceNumber'],
             });
             return response;
         } catch(error) {
@@ -137,14 +139,14 @@ class OrderRepository {
                 where: whereClause,
                 include: {
                     model: Product,
-                    attributes: ['title', 'id', 'price'],
+                    attributes: ['title', 'id', 'price', 'gstPercent'],
                     through: {
                         model: OrderProducts,
                         attributes: ['quantity']
                     }
                 },
                 ...filter,
-                attributes: ['id', 'userId', 'status', 'totalPrice', 'deliveryStatus', 'expectedDeliveryDate', 'dateOfDelivery', 'createdAt', 'updatedAt', 'deliveryAddress', 'razorpayOrderId', 'invoiceNumber'],
+                attributes: ['id', 'userId', 'status', 'subTotal', 'totalGST', 'totalPrice', 'deliveryStatus', 'expectedDeliveryDate', 'dateOfDelivery', 'createdAt', 'updatedAt', 'deliveryAddress', 'razorpayOrderId', 'invoiceNumber'],
             };
     
             const response = await Order.findAll(queryOptions);
@@ -153,6 +155,8 @@ class OrderRepository {
                 return response.map(order => ({
                     id: order.id,
                     status: order.status,
+                    subTotal: order.subTotal,
+                    totalGST: order.totalGST,
                     totalPrice: order.totalPrice,
                     deliveryStatus: order.deliveryStatus,
                     expectedDeliveryDate: order.expectedDeliveryDate,
@@ -166,6 +170,7 @@ class OrderRepository {
                         price: product.price,
                         id: product.id,
                         quantity: product.order_products.quantity,
+                        gstPercent: product.gstPercent
                     })),
                 }));
             }

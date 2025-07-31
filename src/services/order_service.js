@@ -37,10 +37,14 @@ class OrderService {
             }
                
             // 2. Calculate total price
-            let totalPrice = 0;
+            let subTotal = 0, totalGST = 0, totalPrice = 0;
             cartProducts.forEach(product => {
-                totalPrice += product.price * product.cart_products.quantity;
+                subTotal += product.price * product.cart_products.quantity;
+                totalGST += (product.price*(product.gstPercent/100)) * product.cart_products.quantity;
             });
+            totalPrice += subTotal + totalGST;
+            console.log("Sub Total: ", subTotal);
+            console.log("Total GST: ", totalGST);
             console.log("Total Price: ", totalPrice);
 
             // 3. Create Razorpay order
@@ -52,8 +56,8 @@ class OrderService {
             });
     
             // 4. Create a new empty order
-            const { expectedDeliveryDate, deliveryAddress } = data;
-            const order = await this.repository.createOrder(userId, 'pending', totalPrice, 'processing', expectedDeliveryDate, null, deliveryAddress, razorpayOrder.id, null);
+            let { expectedDeliveryDate, deliveryAddress } = data;
+            const order = await this.repository.createOrder(userId, 'pending', subTotal, totalGST, totalPrice, 'processing', expectedDeliveryDate, null, deliveryAddress, razorpayOrder.id, null);
     
             // 5. Now use the order ID to add order products
             const orderProductsBulkCreateArray = cartProducts.map(product => {
@@ -174,6 +178,8 @@ class OrderService {
           id: response.id,
           userId: response.userId,
           status: response.status,
+          subTotal: response.subTotal,
+          totalGST: response.totalGST,
           totalPrice: response.totalPrice,
           deliveryStatus: response.deliveryStatus,
           expectedDeliveryDate: response.expectedDeliveryDate,
@@ -188,7 +194,8 @@ class OrderService {
             title: product.title,
             price: product.price,
             id: product.id,
-            quantity: product.order_products.quantity
+            quantity: product.order_products.quantity,
+            gstPercent: product.gstPercent
           }
         }); 
         return order;
