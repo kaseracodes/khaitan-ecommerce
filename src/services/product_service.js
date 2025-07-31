@@ -11,7 +11,7 @@ class ProductService {
     async createProduct(product) {
         try {
             const response = await this.repository.createProduct(
-                product.title, product.description, product.price, product.categoryId, product.image);
+                product.title, product.description, product.price, product.categoryId, product.gstPercent);
             return response;
         } catch(error) {
             console.log("ProductService: ",error);
