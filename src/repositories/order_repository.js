@@ -154,6 +154,7 @@ class OrderRepository {
             if (userId !== null) {
                 return response.map(order => ({
                     id: order.id,
+                    userId: order.userId,
                     status: order.status,
                     subTotal: order.subTotal,
                     totalGST: order.totalGST,
@@ -165,6 +166,7 @@ class OrderRepository {
                     updatedAt: order.updatedAt,
                     deliveryAddress: order.deliveryAddress,
                     razorpayOrderId: order.razorpayOrderId,
+                    invoiceNumber: order.invoiceNumber,
                     products: order.products.map(product => ({
                         title: product.title,
                         price: product.price,

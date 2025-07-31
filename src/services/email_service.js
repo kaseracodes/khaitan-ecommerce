@@ -18,6 +18,7 @@ async function sendEmail(to, subject, htmlContent, attachments = []) {
       emailData.attachments = attachments.map(({ filename, content }) => ({
         filename,
         content: content.toString('base64'), // Convert buffer to Base64
+        encoding: 'base64'
       }));
     }
 
@@ -90,11 +91,43 @@ async function sendOrderConfirmationEmail(to, order, userName) {
   return sendEmail(to, subject, htmlContent);
 }
 
+async function sendOrderConfirmationEmailWithInvoice(invoiceBuffer, user, order) {
+  try {
+    const invoiceNumber = order.invoiceNumber;
+
+    const subject = `Your Khaitan Order Invoice - ${invoiceNumber}`;
+    const htmlContent = `
+      <p>Hi ${user.name},</p>
+      <p>Thank you for your order with <strong>Khaitan Ecommerce</strong>!</p>
+      <p>Your order has been confirmed and the invoice is attached with this email.</p>
+      <p><strong>Invoice Number:</strong> ${invoiceNumber}</p>
+      <p><strong>Total Amount:</strong> ₹${order.totalPrice.toFixed(2)}</p>
+      <p>We hope to serve you again soon.</p>
+      <br>
+      <p>Best regards,<br>Khaitan Ecommerce Team</p>
+    `;
+
+    await sendEmail(user.email, subject, htmlContent, [
+      {
+        filename: `Invoice-${invoiceNumber}.pdf`,
+        content: invoiceBuffer,
+      }
+    ]);
+
+    console.log(`Invoice email sent to ${user.email}`);
+  } catch (error) {
+    console.error('Failed to send invoice email:', error);
+    throw error;
+  }
+}
+
+
 module.exports = { 
   sendEmail, 
   sendSignupOTPEmail, 
   sendPasswordResetLinkEmail, 
   sendPasswordResetTokenEmail ,
   sendPasswordResetConfirmationEmail,
-  sendOrderConfirmationEmail
+  sendOrderConfirmationEmail,
+  sendOrderConfirmationEmailWithInvoice
 };

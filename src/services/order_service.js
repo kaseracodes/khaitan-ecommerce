@@ -1,8 +1,8 @@
 const Razorpay = require("razorpay")
 const crypto = require("crypto");
 
-const { sendOrderConfirmationEmail } = require("../services/email_service");
-const { generateInvoiceNumber } = require('../utils/invoice_generator');
+const { sendOrderConfirmationEmail, sendOrderConfirmationEmailWithInvoice } = require("../services/email_service");
+const { generateInvoiceNumber, createInvoice } = require('../utils/invoice_generator');
 
 const ForbiddenError = require("../errors/forbidden_error");
 const InternalServerError = require("../errors/internal_server_error");
@@ -96,7 +96,7 @@ class OrderService {
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = data;
 
         // 1. Fetch order from database using razorpayOrderId
-        const order = await this.repository.getOrderByRazorpayId(razorpay_order_id);
+        let order = await this.repository.getOrderByRazorpayId(razorpay_order_id);
         if (!order) {
             throw new NotFoundError("Order", "razorpayOrderId", razorpay_order_id);
         }
@@ -127,7 +127,10 @@ class OrderService {
         if (!user) {
           throw new NotFoundError("User", "id", userId);
         }
-        await sendOrderConfirmationEmail(user.email, order, user.name);
+        const orderId = order.id;
+        order = await this.fetchOrderDetails(userId, orderId);
+        const { buffer, invoiceNumber }  = await createInvoice(user, order);
+        await sendOrderConfirmationEmailWithInvoice(buffer, user, order);
         return order;
       } catch (error) {
         if(error.name === "NotFoundError" || error.name === "UnauthorizedError") {
@@ -189,6 +192,7 @@ class OrderService {
           updatedAt: response.updatedAt,
           deliveryAddress: response.deliveryAddress,
           razorpayOrderId: response.razorpayOrderId,
+          invoiceNumber: response.invoiceNumber,
         }; 
         order.products = response.products.map(product => {
           return {
