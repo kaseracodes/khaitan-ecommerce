@@ -37,17 +37,20 @@ class OrderRepository {
         }
     }
 
-    async createOrder(userId, status, totalPrice, deliveryStatus, expectedDeliveryDate, dateOfDelivery, deliveryAddress, razorpayOrderId) {
+    async createOrder(userId, status, subTotal, totalGST, totalPrice, deliveryStatus, expectedDeliveryDate, dateOfDelivery, deliveryAddress, razorpayOrderId, invoiceNumber) {
         try {
             const response = await Order.create({
                 userId,
                 status,
+                subTotal,
+                totalGST,
                 totalPrice,
                 deliveryStatus, 
                 expectedDeliveryDate, 
                 dateOfDelivery,
                 deliveryAddress,
-                razorpayOrderId
+                razorpayOrderId,
+                invoiceNumber
             });
             return response;
         } catch(error) {
@@ -96,13 +99,13 @@ class OrderRepository {
                 },
                 include: {
                     model: Product,
-                    attributes: ['title', 'id', 'price'],
+                    attributes: ['title', 'id', 'price', 'gstPercent'],
                     through: {
                         model: OrderProducts,
-                        attributes: ['quantity']
+                        attributes: ['quantity', 'orderedPrice']
                     }
                 },
-                attributes: ['id', 'userId', 'status', 'totalPrice', 'deliveryStatus', 'expectedDeliveryDate', 'dateOfDelivery', 'createdAt', 'updatedAt', 'deliveryAddress', 'razorpayOrderId'],
+                attributes: ['id', 'userId', 'status', 'subTotal', 'totalGST', 'totalPrice', 'deliveryStatus', 'expectedDeliveryDate', 'dateOfDelivery', 'createdAt', 'updatedAt', 'deliveryAddress', 'razorpayOrderId', 'invoiceNumber'],
             });
             return response;
         } catch(error) {
@@ -136,14 +139,14 @@ class OrderRepository {
                 where: whereClause,
                 include: {
                     model: Product,
-                    attributes: ['title', 'id', 'price'],
+                    attributes: ['title', 'id', 'price', 'gstPercent'],
                     through: {
                         model: OrderProducts,
-                        attributes: ['quantity']
+                        attributes: ['quantity', 'orderedPrice']
                     }
                 },
                 ...filter,
-                attributes: ['id', 'userId', 'status', 'totalPrice', 'deliveryStatus', 'expectedDeliveryDate', 'dateOfDelivery', 'createdAt', 'updatedAt', 'deliveryAddress', 'razorpayOrderId'],
+                attributes: ['id', 'userId', 'status', 'subTotal', 'totalGST', 'totalPrice', 'deliveryStatus', 'expectedDeliveryDate', 'dateOfDelivery', 'createdAt', 'updatedAt', 'deliveryAddress', 'razorpayOrderId', 'invoiceNumber'],
             };
     
             const response = await Order.findAll(queryOptions);
@@ -151,7 +154,10 @@ class OrderRepository {
             if (userId !== null) {
                 return response.map(order => ({
                     id: order.id,
+                    userId: order.userId,
                     status: order.status,
+                    subTotal: order.subTotal,
+                    totalGST: order.totalGST,
                     totalPrice: order.totalPrice,
                     deliveryStatus: order.deliveryStatus,
                     expectedDeliveryDate: order.expectedDeliveryDate,
@@ -160,11 +166,14 @@ class OrderRepository {
                     updatedAt: order.updatedAt,
                     deliveryAddress: order.deliveryAddress,
                     razorpayOrderId: order.razorpayOrderId,
+                    invoiceNumber: order.invoiceNumber,
                     products: order.products.map(product => ({
                         title: product.title,
                         price: product.price,
                         id: product.id,
                         quantity: product.order_products.quantity,
+                        orderedPrice: product.order_products.orderedPrice,
+                        gstPercent: product.gstPercent
                     })),
                 }));
             }

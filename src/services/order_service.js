@@ -1,7 +1,8 @@
 const Razorpay = require("razorpay")
 const crypto = require("crypto");
 
-const { sendOrderConfirmationEmail } = require("../services/email_service");
+const { sendOrderConfirmationEmail, sendOrderConfirmationEmailWithInvoice } = require("../services/email_service");
+const { generateInvoiceNumber, createInvoice } = require('../utils/invoice_generator');
 
 const ForbiddenError = require("../errors/forbidden_error");
 const InternalServerError = require("../errors/internal_server_error");
@@ -36,10 +37,14 @@ class OrderService {
             }
                
             // 2. Calculate total price
-            let totalPrice = 0;
+            let subTotal = 0, totalGST = 0, totalPrice = 0;
             cartProducts.forEach(product => {
-                totalPrice += product.price * product.cart_products.quantity;
+                subTotal += product.price * product.cart_products.quantity;
+                totalGST += (product.price*(product.gstPercent/100)) * product.cart_products.quantity;
             });
+            totalPrice += subTotal + totalGST;
+            console.log("Sub Total: ", subTotal);
+            console.log("Total GST: ", totalGST);
             console.log("Total Price: ", totalPrice);
 
             // 3. Create Razorpay order
@@ -51,15 +56,16 @@ class OrderService {
             });
     
             // 4. Create a new empty order
-            const { expectedDeliveryDate, deliveryAddress } = data;
-            const order = await this.repository.createOrder(userId, 'pending', totalPrice, 'processing', expectedDeliveryDate, null, deliveryAddress, razorpayOrder.id);
+            let { expectedDeliveryDate, deliveryAddress } = data;
+            const order = await this.repository.createOrder(userId, 'pending', subTotal, totalGST, totalPrice, 'processing', expectedDeliveryDate, null, deliveryAddress, razorpayOrder.id, null);
     
             // 5. Now use the order ID to add order products
             const orderProductsBulkCreateArray = cartProducts.map(product => {
               return {
                   orderId: order.id,
                   productId: product.id,
-                  quantity: product.cart_products.quantity
+                  quantity: product.cart_products.quantity,
+                  orderedPrice: product.price
               }
             })
     
@@ -90,7 +96,7 @@ class OrderService {
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = data;
 
         // 1. Fetch order from database using razorpayOrderId
-        const order = await this.repository.getOrderByRazorpayId(razorpay_order_id);
+        let order = await this.repository.getOrderByRazorpayId(razorpay_order_id);
         if (!order) {
             throw new NotFoundError("Order", "razorpayOrderId", razorpay_order_id);
         }
@@ -108,6 +114,7 @@ class OrderService {
 
         // 4. Update order status to "succesfull" in the database
         order.status = "succesfull";
+        order.invoiceNumber = generateInvoiceNumber(order.id);
         await order.save();
 
         // 5. Clear cart
@@ -116,11 +123,14 @@ class OrderService {
             await this.cartRepository.clearCart(cart.id);
         }
 
-        const user = await this.userRepository.getUserById(userId);
+        const user = await this.userRepository.getUser(userId);
         if (!user) {
           throw new NotFoundError("User", "id", userId);
         }
-        await sendOrderConfirmationEmail(user.email, order, user.name);
+        const orderId = order.id;
+        order = await this.fetchOrderDetails(userId, orderId);
+        const { buffer, invoiceNumber }  = await createInvoice(user, order);
+        await sendOrderConfirmationEmailWithInvoice(buffer, user, order);
         return order;
       } catch (error) {
         if(error.name === "NotFoundError" || error.name === "UnauthorizedError") {
@@ -172,6 +182,8 @@ class OrderService {
           id: response.id,
           userId: response.userId,
           status: response.status,
+          subTotal: response.subTotal,
+          totalGST: response.totalGST,
           totalPrice: response.totalPrice,
           deliveryStatus: response.deliveryStatus,
           expectedDeliveryDate: response.expectedDeliveryDate,
@@ -180,13 +192,16 @@ class OrderService {
           updatedAt: response.updatedAt,
           deliveryAddress: response.deliveryAddress,
           razorpayOrderId: response.razorpayOrderId,
+          invoiceNumber: response.invoiceNumber,
         }; 
         order.products = response.products.map(product => {
           return {
             title: product.title,
             price: product.price,
             id: product.id,
-            quantity: product.order_products.quantity
+            quantity: product.order_products.quantity,
+            gstPercent: product.gstPercent,
+            orderedPrice: product.order_products.orderedPrice
           }
         }); 
         return order;

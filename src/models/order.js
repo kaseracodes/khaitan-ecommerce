@@ -23,6 +23,16 @@ const Order = db.define('order', {
             key: 'id'
         }
     },
+    subTotal: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        defaultValue: 0
+    },
+    totalGST: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        defaultValue: 0
+    },
     totalPrice: {
         type: Sequelize.INTEGER,
         allowNull: true,
@@ -43,7 +53,11 @@ const Order = db.define('order', {
     razorpayOrderId: {
         type: Sequelize.STRING,
         allowNull: false
-    }
+    },
+    invoiceNumber: {
+        type: Sequelize.STRING,
+        allowNull: true
+    },
 });
 
 

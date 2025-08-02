@@ -25,7 +25,12 @@ const OrderProducts = db.define('order_products', {
         type: Sequelize.INTEGER,
         allowNull: false,
         defaultValue: 1
-    }
+    },
+    orderedPrice: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        defaultValue: 0
+    },
 });
 
 module.exports = OrderProducts;

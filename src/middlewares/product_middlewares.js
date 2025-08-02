@@ -28,6 +28,12 @@ function createProductValidator(req, res, next) {
                 .json(errorResponse(ReasonPhrases.BAD_REQUEST, new BadRequest("Category")))
     }
 
+    if(!req.body.gstPercent) {
+        return res
+                .status(StatusCodes.BAD_REQUEST)
+                .json(errorResponse(ReasonPhrases.BAD_REQUEST, new BadRequest("GST Percentage")))
+    }
+
     // If everything looks good
     next();
 }
