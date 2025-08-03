@@ -56,10 +56,10 @@ async function createInvoice(user, order) {
     doc.moveTo(50, logoY + 30).lineTo(550, logoY + 30).stroke();
 
     const companyY = logoY + 40;
-    doc.text('12C Lakeview Rd', 50, companyY);
-    doc.text('Laketown, Kolkata 700048', 50, companyY + 12);
-    doc.text('Email: support@khaitanecom.in', 50, companyY + 24);
-    doc.text('Phone: +91-9876543210', 50, companyY + 36);
+    doc.text('41, J L Nehru Road', 50, companyY);
+    doc.text('Kolkata, West Bengal 700071', 50, companyY + 12);
+    doc.text('Email: customercare@khaitan.com', 50, companyY + 24);
+    doc.text('Phone: +91 8584828210', 50, companyY + 36);
 
     doc.text(`${invoiceNumber}`, 300, companyY, { align: 'right' });
     doc.text(`Order Date ${new Date(order.createdAt).toLocaleDateString()}`, 300, companyY + 12, { align: 'right' });
@@ -111,7 +111,12 @@ async function createInvoice(user, order) {
         doc.rect(startX, y - 2, 500, 20).fill('#f9f9f9').fillColor('#000');
       }
 
-      doc.text(product.title, startX + 5, y, { width: colWidths.product });
+      let displayTitle = product.title;
+      if (product.orderedColorName) {
+        displayTitle += ` - (${product.orderedColorName})`;
+      }
+
+      doc.text(displayTitle, startX + 5, y, { width: colWidths.product });
       doc.text(`${qty}`, startX + colWidths.product + 10, y);
       doc.text(`${RUPEE}${orderedPrice}`, startX + colWidths.product + colWidths.qty + 20, y);
       doc.text(`${RUPEE}${totalOrderedPriceForProduct}`, startX + colWidths.product + colWidths.qty + colWidths.price + 30, y);
