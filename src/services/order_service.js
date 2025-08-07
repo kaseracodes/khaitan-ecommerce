@@ -59,7 +59,6 @@ class OrderService {
             // 4. Create a new empty order
             let { expectedDeliveryDate, deliveryAddress } = data;
             expectedDeliveryDate = new Date();
-            deliveryAddress = 'LakeTown';
             const order = await this.repository.createOrder(userId, 'pending', subTotal, totalGST, totalPrice, 'processing', expectedDeliveryDate, null, deliveryAddress, razorpayOrder.id, null);
     
             // 5. Now use the order ID to add order products
