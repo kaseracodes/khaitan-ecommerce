@@ -183,6 +183,29 @@ async function updateAttributeForProduct(req, res) {
                 .json(errorResponse(error.reason, error));
     } 
 }
+async function updateBasicInfoForProduct(req, res) {
+    try {
+
+        const { id } = req.params;
+        const { title, description, price, gst } = req.body;
+
+        const response = await productService.updateBasicInfoForProduct(id, title, description, price, gst);
+
+        return res
+                .status(StatusCodes.OK)
+                .json({
+                    sucess: true,
+                    error: {},
+                    message: ReasonPhrases.OK + "Product Basic Info Updated",
+                    data: response
+        });
+    } catch (error) {
+        console.log("ProductController: Something went wrong", error);
+        return res  
+                .status(error.statusCode)
+                .json(errorResponse(error.reason, error));
+    } 
+}
 
 async function getProducts(req, res) {
     try {
@@ -257,6 +280,7 @@ module.exports = {
     getAllProductsWithAttributesAndMedia,
     getProductWithAttributesAndMedia,
     updateAttributeForProduct,
+    updateBasicInfoForProduct,
     getProducts,
     getProduct,
     destroyProduct

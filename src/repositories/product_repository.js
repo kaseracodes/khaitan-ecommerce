@@ -484,7 +484,7 @@ class ProductRepository {
                 console.error(
                     `ProductRepository: Product with id ${productId} or Attribute with id ${attributeId} not found`
                 );
-                return null;
+                throw new NotFoundError("Product or Attribute not found", { productId, attributeId });
             }
 
             const productWithFormattedAttributes = this.getAllAttributesForProduct(productId, attributeId, value);
@@ -492,6 +492,34 @@ class ProductRepository {
             return productWithFormattedAttributes;
         } catch (error) {
             console.error("ProductRepository: Error updating attribute for product", error);
+            throw error;
+        }
+    }
+
+    async updateBasicInfoForProduct(productId, title, description, price, gst) {
+        try {
+
+            const [affectedRows] = await Product.update(
+                { title, description, price, gstPercent: gst },
+                {
+                    where: {
+                        id: productId,
+                    },
+                }
+            );
+
+            if (affectedRows === 0) {
+                console.error(
+                    `ProductRepository: Product with id ${productId} not found`
+                );
+                throw new NotFoundError("Product", { id });
+            }
+
+            const productWithUpdatedInfo = this.getProductWithAttributesAndMedia(productId);
+    
+            return productWithUpdatedInfo;
+        } catch (error) {
+            console.error("ProductRepository: Error updating basic information of product", error);
             throw error;
         }
     }
