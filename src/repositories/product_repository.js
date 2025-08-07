@@ -495,6 +495,34 @@ class ProductRepository {
             throw error;
         }
     }
+
+    async updateBasicInfoForProduct(productId, title, description, price) {
+        try {
+
+            const [affectedRows] = await Product.update(
+                { title, description, price },
+                {
+                    where: {
+                        id: productId,
+                    },
+                }
+            );
+
+            if (affectedRows === 0) {
+                console.error(
+                    `ProductRepository: Product with id ${productId} not found`
+                );
+                return null;
+            }
+
+            const productWithUpdatedInfo = this.getProductWithAttributesAndMedia(productId);
+    
+            return productWithUpdatedInfo;
+        } catch (error) {
+            console.error("ProductRepository: Error updating basic information of product", error);
+            throw error;
+        }
+    }
         
 
     async destroyProduct(productId) {
