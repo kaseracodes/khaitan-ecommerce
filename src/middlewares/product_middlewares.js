@@ -65,6 +65,11 @@ function updateBasicInfoForProductValidator(req, res, next) {
                 .status(StatusCodes.BAD_REQUEST)
                 .json(errorResponse(ReasonPhrases.BAD_REQUEST, new BadRequest("Price")))
     }
+    else if(!req.body.gst){
+        return res  
+                .status(StatusCodes.BAD_REQUEST)
+                .json(errorResponse(ReasonPhrases.BAD_REQUEST, new BadRequest("GSTPercent")))
+    }
     else{
         if(!req.params.id) {
             return res  

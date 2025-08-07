@@ -187,9 +187,9 @@ async function updateBasicInfoForProduct(req, res) {
     try {
 
         const { id } = req.params;
-        const { title, description, price } = req.body;
+        const { title, description, price, gst } = req.body;
 
-        const response = await productService.updateBasicInfoForProduct(id, title, description, price);
+        const response = await productService.updateBasicInfoForProduct(id, title, description, price, gst);
 
         return res
                 .status(StatusCodes.OK)

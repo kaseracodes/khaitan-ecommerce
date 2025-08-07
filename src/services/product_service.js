@@ -179,16 +179,11 @@ class ProductService {
         }
     }
 
-    async updateBasicInfoForProduct(id, title, description, price) {
+    async updateBasicInfoForProduct(id, title, description, price, gst) {
     
         try {
-            const response = await this.repository.updateBasicInfoForProduct(id, title, description, price);
-    
-            if (!response) {
-                console.error(`ProductService: Product ${id} not found`);
-                throw new NotFoundError("Product or Attribute not found", { id });
-            }
-    
+            const response = await this.repository.updateBasicInfoForProduct(id, title, description, price, gst);
+            
             return response;
         } catch (error) {
             if (error.name === "NotFoundError") {
@@ -196,7 +191,7 @@ class ProductService {
             }
     
             console.error("ProductService: Unexpected error while updating attribute", error);
-            throw new InternalServerError("Error updating attribute", { id, title, description, price });
+            throw new InternalServerError("Error updating attribute", { id, title, description, price, gst });
         }
     }
     
