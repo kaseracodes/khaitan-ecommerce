@@ -21,6 +21,10 @@ const OrderProducts = db.define('order_products', {
             key: 'id'
         }
     },
+    orderedColorName: {
+        type: Sequelize.STRING,
+        allowNull: true,
+    },
     quantity: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -30,7 +34,15 @@ const OrderProducts = db.define('order_products', {
         type: Sequelize.INTEGER,
         allowNull: true,
         defaultValue: 0
-    },
+    }
+}, {
+    indexes: [
+        {
+            unique: true,
+            name: 'composite_pk_order_product_color',
+            fields: ['orderId', 'productId', 'orderedColorName']
+        }
+    ]
 });
 
 module.exports = OrderProducts;

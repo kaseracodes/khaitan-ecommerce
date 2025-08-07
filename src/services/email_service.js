@@ -114,7 +114,15 @@ async function sendOrderConfirmationEmailWithInvoice(invoiceBuffer, user, order)
       }
     ]);
 
+    await sendEmail("ecom@khaitan.com", subject, htmlContent, [
+      {
+        filename: `Invoice-${invoiceNumber}.pdf`,
+        content: invoiceBuffer,
+      }
+    ]);
+
     console.log(`Invoice email sent to ${user.email}`);
+    console.log("Invoice email sent to ecom@khaitan.com");
   } catch (error) {
     console.error('Failed to send invoice email:', error);
     throw error;

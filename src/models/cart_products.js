@@ -8,6 +8,7 @@ const CartProducts = db.define('cart_products', {
     cartId: {
         type: Sequelize.INTEGER,
         allowNull: false,
+        primaryKey: true,
         references: {
             model: 'Carts',
             key: 'id'
@@ -16,8 +17,18 @@ const CartProducts = db.define('cart_products', {
     productId: {
         type: Sequelize.INTEGER,
         allowNull: false,
+        primaryKey: true,
         references: {
             model: 'Products',
+            key: 'id'
+        }
+    },
+    colorId: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        primaryKey: true,
+        references: {
+            model: 'Colors',
             key: 'id'
         }
     },

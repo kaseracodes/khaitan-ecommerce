@@ -17,10 +17,11 @@ const razorpay = new Razorpay({
 
 class OrderService {
 
-  constructor(repository, cartRepository, userRepository) {
+  constructor(repository, cartRepository, userRepository, colorRepository) {
       this.repository = repository;
       this.cartRepository = cartRepository;
       this.userRepository = userRepository;
+      this.colorRepository = colorRepository;
     }
   
     async createOrder(userId, data) {
@@ -57,17 +58,23 @@ class OrderService {
     
             // 4. Create a new empty order
             let { expectedDeliveryDate, deliveryAddress } = data;
+            expectedDeliveryDate = new Date();
             const order = await this.repository.createOrder(userId, 'pending', subTotal, totalGST, totalPrice, 'processing', expectedDeliveryDate, null, deliveryAddress, razorpayOrder.id, null);
     
             // 5. Now use the order ID to add order products
-            const orderProductsBulkCreateArray = cartProducts.map(product => {
-              return {
+            const orderProductsBulkCreateArray = await Promise.all(
+              cartProducts.map(async (product) => {
+                const colorId = product.cart_products.colorId;
+                const getColorResponse = await this.colorRepository.getColor(colorId);
+                return {
                   orderId: order.id,
                   productId: product.id,
                   quantity: product.cart_products.quantity,
-                  orderedPrice: product.price
-              }
-            })
+                  orderedPrice: product.price,
+                  orderedColorName: getColorResponse.colorName
+                };
+              })
+            );
     
             console.log("Order Products to be created: ", orderProductsBulkCreateArray);    
             const orderProducts = await this.repository.addOrderProductsInBulk(
@@ -168,42 +175,15 @@ class OrderService {
   
     async fetchOrderDetails(userId, orderId) {
       try {
-        const orderObject = await this.repository.getOrder(orderId);
-        if(!orderObject) {
+        const order = await this.repository.fetchOrderDetails(orderId);
+        if(!order) {
           throw new NotFoundError('Order', 'order id', orderId);
         }
   
-        if(orderObject.userId != userId) {
+        if(order.userId != userId) {
           throw new UnauthorizedError('You are not authorised to do the current operation');
         }
-  
-        const response = await this.repository.fetchOrderDetails(orderId);
-        const order = {
-          id: response.id,
-          userId: response.userId,
-          status: response.status,
-          subTotal: response.subTotal,
-          totalGST: response.totalGST,
-          totalPrice: response.totalPrice,
-          deliveryStatus: response.deliveryStatus,
-          expectedDeliveryDate: response.expectedDeliveryDate,
-          dateOfDelivery: response.dateOfDelivery,
-          createdAt: response.createdAt,
-          updatedAt: response.updatedAt,
-          deliveryAddress: response.deliveryAddress,
-          razorpayOrderId: response.razorpayOrderId,
-          invoiceNumber: response.invoiceNumber,
-        }; 
-        order.products = response.products.map(product => {
-          return {
-            title: product.title,
-            price: product.price,
-            id: product.id,
-            quantity: product.order_products.quantity,
-            gstPercent: product.gstPercent,
-            orderedPrice: product.order_products.orderedPrice
-          }
-        }); 
+        
         return order;
       } catch(error) {
         if(error.name === "NotFoundError" || error.name === "UnauthorizedError") {
@@ -214,53 +194,57 @@ class OrderService {
       }
     }
 
-  async getOrdersDetailsForAllUsers(roleId, query) {
-    try {
-      if((query.limit && isNaN(query.limit)) || (query.offset && isNaN(query.offset))) {
-        throw new BadRequest("limit, offset", true);
-      }
-      if (query.status && typeof query.status !== "string") {
-        throw new BadRequest("status must be a string", true);
-      }
-      const orderObject = await this.repository.getOrderDetails(null, +query.limit, +query.offset, query.status || null);
+    async getOrdersDetailsForAllUsers(roleId, query) {
+      try {
+        if ((query.limit && isNaN(query.limit)) || (query.offset && isNaN(query.offset))) {
+          throw new BadRequest("limit, offset", true);
+        }
 
-      if (!orderObject) {
-        throw new NotFoundError('User', 'user id', userId);
-      }
+        if (query.status && typeof query.status !== "string") {
+          throw new BadRequest("status must be a string", true);
+        }
 
-      return orderObject;
-    } catch(error) {
-      if(error.name === "NotFoundError" || error.name === "UnauthorizedError" || error.name === "ForbiddenError") {
-        throw error;
+        const orderObject = await this.repository.getOrderDetails(null, query.limit ? +query.limit : undefined, query.offset ? +query.offset : undefined, query.status || null);
+
+        if (!orderObject || orderObject.length === 0) {
+          throw new NotFoundError('Orders', 'user id', 'admin');
+        }
+
+        return orderObject;
+      } catch (error) {
+        if (["NotFoundError", "UnauthorizedError", "ForbiddenError"].includes(error.name)) {
+          throw error;
+        }
+        console.error("OrderService.getOrdersDetailsForAllUsers: ", error);
+        throw new InternalServerError();
       }
-      console.log("OrderService: ",error);
-      throw new InternalServerError();
     }
-  }
 
-  async getOrdersDetailsForUser(userId, query) {
-    try {
-      if((query.limit && isNaN(query.limit)) || (query.offset && isNaN(query.offset))) {
-        throw new BadRequest("limit, offset", true);
-      }
-      if (query.status && typeof query.status !== "string") {
-        throw new BadRequest("status must be a string", true);
-      }
-      const orderObject = await this.repository.getOrderDetails(userId, +query.limit, +query.offset, query.status || null);
+    async getOrdersDetailsForUser(userId, query) {
+      try {
+        if ((query.limit && isNaN(query.limit)) || (query.offset && isNaN(query.offset))) {
+          throw new BadRequest("limit, offset", true);
+        }
 
-      if (!orderObject) {
-        throw new NotFoundError('User', 'user id', userId);
-      }
+        if (query.status && typeof query.status !== "string") {
+          throw new BadRequest("status must be a string", true);
+        }
 
-      return orderObject;
-    } catch(error) {
-      if(error.name === "NotFoundError" || error.name === "UnauthorizedError") {
-        throw error;
+        const orderObject = await this.repository.getOrderDetails( userId, query.limit ? +query.limit : undefined, query.offset ? +query.offset : undefined, query.status || null );
+
+        if (!orderObject || orderObject.length === 0) {
+          throw new NotFoundError('User', 'user id', userId);
+        }
+
+        return orderObject;
+      } catch (error) {
+        if (["NotFoundError", "UnauthorizedError"].includes(error.name)) {
+          throw error;
+        }
+        console.error("OrderService.getOrdersDetailsForUser: ", error);
+        throw new InternalServerError();
       }
-      console.log("OrderService: ",error);
-      throw new InternalServerError();
     }
-  }
 
 }
   

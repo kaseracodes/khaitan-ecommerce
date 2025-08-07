@@ -7,7 +7,7 @@ class CartService {
         this.respository = respository;
     }
 
-    async updateCart(userId, cartId, productId, shouldAddProduct = true) {
+    async updateCart(userId, cartId, productId, colorId, shouldAddProduct = true) {
         try {
             const cart = await this.respository.getCart(cartId);
             if(!cart) {
@@ -16,7 +16,7 @@ class CartService {
             if(cart.userId !== userId) {
                 throw new UnauthorizedError('You are not authorised to do the current operation');
             }
-            const response = await this.respository.updateCart(cartId, productId, shouldAddProduct);
+            const response = await this.respository.updateCart(cartId, productId, colorId, shouldAddProduct);
             return response;
         } catch(error) {
             if(error.name === "NotFoundError" || error.name === "UnauthorizedError") {
