@@ -38,10 +38,10 @@ class ProductRepository {
         }
     }
 
-    async createProduct(title, description, price, categoryId, image) {
+    async createProduct(title, description, price, categoryId, gstPercent) {
         try {
             const response = await Product.create({
-                title, description, price, categoryId, image
+                title, description, price, categoryId, gstPercent
             });
             return response;
         } catch(error) {
@@ -100,7 +100,7 @@ class ProductRepository {
                 title: product.title,
                 description: product.description,
                 price: product.price,
-                image: product.image,
+                gstPercent: product.gstPercent,
                 categoryId: product.categoryId,
                 createdAt: product.createdAt,
                 updatedAt: product.updatedAt,
@@ -159,7 +159,7 @@ class ProductRepository {
                 title: product.title,
                 description: product.description,
                 price: product.price,
-                image: product.image,
+                gstPercent: product.gstPercent,
                 categoryId: product.categoryId,
                 createdAt: product.createdAt,
                 updatedAt: product.updatedAt,
@@ -217,7 +217,7 @@ class ProductRepository {
                 title: product.title,
                 description: product.description,
                 price: product.price,
-                image: product.image,
+                gstPercent: product.gstPercent,
                 createdAt: product.createdAt,
                 updatedAt: product.updatedAt,
                 attributes: product.attributes.map(attr => ({
@@ -287,7 +287,7 @@ class ProductRepository {
                 id: product.id,
                 title: product.title,
                 description: product.description,
-                price: product.price,
+                gstPercent: product.gstPercent,
                 image: product.image,
                 categoryId: product.categoryId,
                 createdAt: product.createdAt,
@@ -369,7 +369,7 @@ class ProductRepository {
                 title: product.title,
                 description: product.description,
                 price: product.price,
-                image: product.image,
+                gstPercent: product.gstPercent,
                 categoryId: product.categoryId,
                 createdAt: product.createdAt,
                 updatedAt: product.updatedAt,
@@ -437,7 +437,7 @@ class ProductRepository {
                 title: product.title,
                 description: product.description,
                 price: product.price,
-                image: product.image,
+                gstPercent: product.gstPercent,
                 categoryId: product.categoryId,
                 createdAt: product.createdAt,
                 updatedAt: product.updatedAt,
@@ -484,7 +484,7 @@ class ProductRepository {
                 console.error(
                     `ProductRepository: Product with id ${productId} or Attribute with id ${attributeId} not found`
                 );
-                return null;
+                throw new NotFoundError("Product or Attribute not found", { productId, attributeId });
             }
 
             const productWithFormattedAttributes = this.getAllAttributesForProduct(productId, attributeId, value);
@@ -492,6 +492,34 @@ class ProductRepository {
             return productWithFormattedAttributes;
         } catch (error) {
             console.error("ProductRepository: Error updating attribute for product", error);
+            throw error;
+        }
+    }
+
+    async updateBasicInfoForProduct(productId, title, description, price, gst) {
+        try {
+
+            const [affectedRows] = await Product.update(
+                { title, description, price, gstPercent: gst },
+                {
+                    where: {
+                        id: productId,
+                    },
+                }
+            );
+
+            if (affectedRows === 0) {
+                console.error(
+                    `ProductRepository: Product with id ${productId} not found`
+                );
+                throw new NotFoundError("Product", { id });
+            }
+
+            const productWithUpdatedInfo = this.getProductWithAttributesAndMedia(productId);
+    
+            return productWithUpdatedInfo;
+        } catch (error) {
+            console.error("ProductRepository: Error updating basic information of product", error);
             throw error;
         }
     }

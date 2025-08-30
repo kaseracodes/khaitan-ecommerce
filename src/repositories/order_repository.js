@@ -37,17 +37,20 @@ class OrderRepository {
         }
     }
 
-    async createOrder(userId, status, totalPrice, deliveryStatus, expectedDeliveryDate, dateOfDelivery, deliveryAddress, razorpayOrderId) {
+    async createOrder(userId, status, subTotal, totalGST, totalPrice, deliveryStatus, expectedDeliveryDate, dateOfDelivery, deliveryAddress, razorpayOrderId, invoiceNumber) {
         try {
             const response = await Order.create({
                 userId,
                 status,
+                subTotal,
+                totalGST,
                 totalPrice,
                 deliveryStatus, 
                 expectedDeliveryDate, 
                 dateOfDelivery,
                 deliveryAddress,
-                razorpayOrderId
+                razorpayOrderId,
+                invoiceNumber
             });
             return response;
         } catch(error) {
@@ -89,92 +92,78 @@ class OrderRepository {
     }
 
     async fetchOrderDetails(orderId) {
-        try {
-            const response = await Order.findOne({
-                where: {
-                    id: orderId
-                },
-                include: {
-                    model: Product,
-                    attributes: ['title', 'id', 'price'],
-                    through: {
-                        model: OrderProducts,
-                        attributes: ['quantity']
-                    }
-                },
-                attributes: ['id', 'userId', 'status', 'totalPrice', 'deliveryStatus', 'expectedDeliveryDate', 'dateOfDelivery', 'createdAt', 'updatedAt', 'deliveryAddress', 'razorpayOrderId'],
-            });
-            return response;
-        } catch(error) {
-            console.log(error);
-            throw error;
+      try {
+
+        const order = await Order.findByPk(orderId, { raw: true });
+
+        if (!order) {
+          throw new Error('Order not found');
         }
+
+        const orderProducts = await OrderProducts.findAll({ where: { orderId }, raw: true });
+        const productIds = [...new Set(orderProducts.map(op => op.productId))];
+        const products = await Product.findAll({ where: { id: productIds }, raw: true });
+
+        const productMap = {};
+        products.forEach(product => { productMap[product.id] = product; });
+
+        const fullOrderProducts = orderProducts.map(op => ({
+          ...op,
+          ...productMap[op.productId]
+        }));
+
+        order.products = fullOrderProducts;
+        console.dir(order, { depth: null });
+        return order;
+
+      } catch (error) {
+        console.error("OrderRepository.fetchOrderDetails Error:", error);
+        throw error;
+      }
     }
     
     async getOrderDetails(userId, limit, offset, status) {
-        try {
-            const filter = {};
-    
-            if (limit) {
-                filter.limit = limit;
-            }
-            if (offset) {
-                filter.offset = offset;
-            }
-    
-            const whereClause = {};
-    
-            if (userId !== null) {
-                whereClause.userId = userId;
-            }
-    
-            if (status) {
-                whereClause.status = { [Op.eq]: status };
-            }
-    
-            const queryOptions = {
-                where: whereClause,
-                include: {
-                    model: Product,
-                    attributes: ['title', 'id', 'price'],
-                    through: {
-                        model: OrderProducts,
-                        attributes: ['quantity']
-                    }
-                },
-                ...filter,
-                attributes: ['id', 'userId', 'status', 'totalPrice', 'deliveryStatus', 'expectedDeliveryDate', 'dateOfDelivery', 'createdAt', 'updatedAt', 'deliveryAddress', 'razorpayOrderId'],
-            };
-    
-            const response = await Order.findAll(queryOptions);
-    
-            if (userId !== null) {
-                return response.map(order => ({
-                    id: order.id,
-                    status: order.status,
-                    totalPrice: order.totalPrice,
-                    deliveryStatus: order.deliveryStatus,
-                    expectedDeliveryDate: order.expectedDeliveryDate,
-                    dateOfDelivery: order.dateOfDelivery,
-                    createdAt: order.createdAt,
-                    updatedAt: order.updatedAt,
-                    deliveryAddress: order.deliveryAddress,
-                    razorpayOrderId: order.razorpayOrderId,
-                    products: order.products.map(product => ({
-                        title: product.title,
-                        price: product.price,
-                        id: product.id,
-                        quantity: product.order_products.quantity,
-                    })),
-                }));
-            }
-    
-            return response;
-    
-        } catch (error) {
-            console.log(error);
-            throw error;
-        }
+      try {
+        const filter = {};
+        if (limit) filter.limit = limit;
+        if (offset) filter.offset = offset;
+
+        const whereClause = {};
+        if (userId !== null) whereClause.userId = userId;
+        if (status) whereClause.status = { [Op.eq]: status };
+
+        const queryOptions = {
+          where: whereClause,
+          include: {
+            model: Product,
+            through: { model: OrderProducts }, // include all fields
+          },
+          ...filter,
+          // No attributes specified — fetch all fields from Order
+        };
+
+        const orders = await Order.findAll(queryOptions);
+
+        // Format the output
+        return orders.map(order => {
+            const plainOrder = order.get({ plain: true });
+
+            // Merge order_products fields into product and exclude order_products itself
+            plainOrder.products = plainOrder.products.map(product => {
+              const { order_products, ...productData } = product;
+              return {
+                ...productData,
+                ...order_products, // merge join table data directly
+              };
+            });
+
+          return plainOrder;
+        });
+
+      } catch (error) {
+        console.error("OrderRepository.getOrderDetails Error:", error);
+        throw error;
+      }
     }
     
   

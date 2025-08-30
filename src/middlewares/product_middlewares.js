@@ -28,6 +28,12 @@ function createProductValidator(req, res, next) {
                 .json(errorResponse(ReasonPhrases.BAD_REQUEST, new BadRequest("Category")))
     }
 
+    if(!req.body.gstPercent) {
+        return res
+                .status(StatusCodes.BAD_REQUEST)
+                .json(errorResponse(ReasonPhrases.BAD_REQUEST, new BadRequest("GST Percentage")))
+    }
+
     // If everything looks good
     next();
 }
@@ -37,6 +43,39 @@ function updateAttributeForProductValidator(req, res, next) {
         return res  
                 .status(StatusCodes.BAD_REQUEST)
                 .json(errorResponse(ReasonPhrases.BAD_REQUEST, new BadRequest("ProductId or AttributeId")))
+    }
+
+    // If everything looks good
+    next();
+}
+function updateBasicInfoForProductValidator(req, res, next) {
+    // || !req.body.price || !req.params.id
+    if (!req.body.title) {
+        return res  
+                .status(StatusCodes.BAD_REQUEST)
+                .json(errorResponse(ReasonPhrases.BAD_REQUEST, new BadRequest("Title")))
+    }
+    else if(!req.body.description){
+        return res  
+                .status(StatusCodes.BAD_REQUEST)
+                .json(errorResponse(ReasonPhrases.BAD_REQUEST, new BadRequest("Description")))
+    }
+    else if(!req.body.price){
+        return res  
+                .status(StatusCodes.BAD_REQUEST)
+                .json(errorResponse(ReasonPhrases.BAD_REQUEST, new BadRequest("Price")))
+    }
+    else if(!req.body.gst){
+        return res  
+                .status(StatusCodes.BAD_REQUEST)
+                .json(errorResponse(ReasonPhrases.BAD_REQUEST, new BadRequest("GSTPercent")))
+    }
+    else{
+        if(!req.params.id) {
+            return res  
+                    .status(StatusCodes.BAD_REQUEST)
+                    .json(errorResponse(ReasonPhrases.BAD_REQUEST, new BadRequest("ProductId")));
+        }
     }
 
     // If everything looks good
@@ -72,5 +111,6 @@ function bulkAddAttributesValidator(req, res, next) {
 module.exports = {
     createProductValidator,
     updateAttributeForProductValidator,
-    bulkAddAttributesValidator
+    bulkAddAttributesValidator,
+    updateBasicInfoForProductValidator
 }

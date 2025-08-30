@@ -16,6 +16,10 @@ const Product = db.define('product', {
         type: Sequelize.INTEGER,
         allowNull: false,
     },
+    gstPercent: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+    },
     categoryId: {
         type: Sequelize.INTEGER,
         allowNull: false,

@@ -90,13 +90,14 @@ class CartRepository {
         }
     }
 
-    async updateCart(cartId, productId, shouldAddProduct = true) {
+    async updateCart(cartId, productId, colorId, shouldAddProduct = true) {
         try {
             const result = await CartProducts.findOne({
                 where: {
                     [Op.and]: [
                         {cartId: cartId},
-                        {productId: productId}
+                        {productId: productId},
+                        {colorId: colorId}
                     ]
                 }
             });
@@ -108,6 +109,7 @@ class CartRepository {
                     await CartProducts.create({
                         cartId,
                         productId,
+                        colorId
                     })
                 } else {
                     // the product was already in the cart and we want to increment the quantity
@@ -123,7 +125,8 @@ class CartRepository {
                         where: {
                             [Op.and]: [
                                 {cartId: cartId},
-                                {productId: productId}
+                                {productId: productId},
+                                {colorId: colorId}
                             ]
                         }
                     })

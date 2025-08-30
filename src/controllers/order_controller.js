@@ -1,11 +1,11 @@
 const { StatusCodes, ReasonPhrases } = require('http-status-codes');
 
 const { OrderService }  = require('../services/index');
-const { OrderRepository, CartRepository, UserRepository} = require('../repositories/index');
+const { OrderRepository, CartRepository, UserRepository, ColorRepository } = require('../repositories/index');
 
 const errorResponse = require('../utils/error_response');
 
-const orderService = new OrderService(new OrderRepository(), new CartRepository(), new UserRepository());
+const orderService = new OrderService(new OrderRepository(), new CartRepository(), new UserRepository(), new ColorRepository());
 
 async function createOrder(req, res) {
 

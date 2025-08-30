@@ -1,7 +1,8 @@
 const Razorpay = require("razorpay")
 const crypto = require("crypto");
 
-const { sendOrderConfirmationEmail } = require("../services/email_service");
+const { sendOrderConfirmationEmail, sendOrderConfirmationEmailWithInvoice } = require("../services/email_service");
+const { generateInvoiceNumber, createInvoice } = require('../utils/invoice_generator');
 
 const ForbiddenError = require("../errors/forbidden_error");
 const InternalServerError = require("../errors/internal_server_error");
@@ -16,10 +17,11 @@ const razorpay = new Razorpay({
 
 class OrderService {
 
-  constructor(repository, cartRepository, userRepository) {
+  constructor(repository, cartRepository, userRepository, colorRepository) {
       this.repository = repository;
       this.cartRepository = cartRepository;
       this.userRepository = userRepository;
+      this.colorRepository = colorRepository;
     }
   
     async createOrder(userId, data) {
@@ -36,10 +38,14 @@ class OrderService {
             }
                
             // 2. Calculate total price
-            let totalPrice = 0;
+            let subTotal = 0, totalGST = 0, totalPrice = 0;
             cartProducts.forEach(product => {
-                totalPrice += product.price * product.cart_products.quantity;
+                subTotal += product.price * product.cart_products.quantity;
+                totalGST += (product.price*(product.gstPercent/100)) * product.cart_products.quantity;
             });
+            totalPrice += subTotal + totalGST;
+            console.log("Sub Total: ", subTotal);
+            console.log("Total GST: ", totalGST);
             console.log("Total Price: ", totalPrice);
 
             // 3. Create Razorpay order
@@ -51,17 +57,23 @@ class OrderService {
             });
     
             // 4. Create a new empty order
-            const { expectedDeliveryDate, deliveryAddress } = data;
-            const order = await this.repository.createOrder(userId, 'pending', totalPrice, 'processing', expectedDeliveryDate, null, deliveryAddress, razorpayOrder.id);
+            let { expectedDeliveryDate, deliveryAddress } = data;
+            const order = await this.repository.createOrder(userId, 'pending', subTotal, totalGST, totalPrice, 'processing', expectedDeliveryDate, null, deliveryAddress, razorpayOrder.id, null);
     
             // 5. Now use the order ID to add order products
-            const orderProductsBulkCreateArray = cartProducts.map(product => {
-              return {
+            const orderProductsBulkCreateArray = await Promise.all(
+              cartProducts.map(async (product) => {
+                const colorId = product.cart_products.colorId;
+                const getColorResponse = await this.colorRepository.getColor(colorId);
+                return {
                   orderId: order.id,
                   productId: product.id,
-                  quantity: product.cart_products.quantity
-              }
-            })
+                  quantity: product.cart_products.quantity,
+                  orderedPrice: product.price,
+                  orderedColorName: getColorResponse.colorName
+                };
+              })
+            );
     
             console.log("Order Products to be created: ", orderProductsBulkCreateArray);    
             const orderProducts = await this.repository.addOrderProductsInBulk(
@@ -90,7 +102,7 @@ class OrderService {
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = data;
 
         // 1. Fetch order from database using razorpayOrderId
-        const order = await this.repository.getOrderByRazorpayId(razorpay_order_id);
+        let order = await this.repository.getOrderByRazorpayId(razorpay_order_id);
         if (!order) {
             throw new NotFoundError("Order", "razorpayOrderId", razorpay_order_id);
         }
@@ -108,6 +120,7 @@ class OrderService {
 
         // 4. Update order status to "succesfull" in the database
         order.status = "succesfull";
+        order.invoiceNumber = generateInvoiceNumber(order.id);
         await order.save();
 
         // 5. Clear cart
@@ -116,11 +129,14 @@ class OrderService {
             await this.cartRepository.clearCart(cart.id);
         }
 
-        const user = await this.userRepository.getUserById(userId);
+        const user = await this.userRepository.getUser(userId);
         if (!user) {
           throw new NotFoundError("User", "id", userId);
         }
-        await sendOrderConfirmationEmail(user.email, order, user.name);
+        const orderId = order.id;
+        order = await this.fetchOrderDetails(userId, orderId);
+        const { buffer, invoiceNumber }  = await createInvoice(user, order);
+        await sendOrderConfirmationEmailWithInvoice(buffer, user, order);
         return order;
       } catch (error) {
         if(error.name === "NotFoundError" || error.name === "UnauthorizedError") {
@@ -136,10 +152,6 @@ class OrderService {
         const orderObject = await this.repository.getOrder(orderId);
         if(!orderObject) {
           throw new NotFoundError('Order', 'order id', orderId);
-        }
-  
-        if(orderObject.userId != userId) {
-          throw new UnauthorizedError('You are not authorised to do the current operation');
         }
 
         const { dateOfDelivery } = data;
@@ -158,37 +170,15 @@ class OrderService {
   
     async fetchOrderDetails(userId, orderId) {
       try {
-        const orderObject = await this.repository.getOrder(orderId);
-        if(!orderObject) {
+        const order = await this.repository.fetchOrderDetails(orderId);
+        if(!order) {
           throw new NotFoundError('Order', 'order id', orderId);
         }
   
-        if(orderObject.userId != userId) {
+        if(order.userId != userId) {
           throw new UnauthorizedError('You are not authorised to do the current operation');
         }
-  
-        const response = await this.repository.fetchOrderDetails(orderId);
-        const order = {
-          id: response.id,
-          userId: response.userId,
-          status: response.status,
-          totalPrice: response.totalPrice,
-          deliveryStatus: response.deliveryStatus,
-          expectedDeliveryDate: response.expectedDeliveryDate,
-          dateOfDelivery: response.dateOfDelivery,
-          createdAt: response.createdAt,
-          updatedAt: response.updatedAt,
-          deliveryAddress: response.deliveryAddress,
-          razorpayOrderId: response.razorpayOrderId,
-        }; 
-        order.products = response.products.map(product => {
-          return {
-            title: product.title,
-            price: product.price,
-            id: product.id,
-            quantity: product.order_products.quantity
-          }
-        }); 
+        
         return order;
       } catch(error) {
         if(error.name === "NotFoundError" || error.name === "UnauthorizedError") {
@@ -199,53 +189,57 @@ class OrderService {
       }
     }
 
-  async getOrdersDetailsForAllUsers(roleId, query) {
-    try {
-      if((query.limit && isNaN(query.limit)) || (query.offset && isNaN(query.offset))) {
-        throw new BadRequest("limit, offset", true);
-      }
-      if (query.status && typeof query.status !== "string") {
-        throw new BadRequest("status must be a string", true);
-      }
-      const orderObject = await this.repository.getOrderDetails(null, +query.limit, +query.offset, query.status || null);
+    async getOrdersDetailsForAllUsers(roleId, query) {
+      try {
+        if ((query.limit && isNaN(query.limit)) || (query.offset && isNaN(query.offset))) {
+          throw new BadRequest("limit, offset", true);
+        }
 
-      if (!orderObject) {
-        throw new NotFoundError('User', 'user id', userId);
-      }
+        if (query.status && typeof query.status !== "string") {
+          throw new BadRequest("status must be a string", true);
+        }
 
-      return orderObject;
-    } catch(error) {
-      if(error.name === "NotFoundError" || error.name === "UnauthorizedError" || error.name === "ForbiddenError") {
-        throw error;
+        const orderObject = await this.repository.getOrderDetails(null, query.limit ? +query.limit : undefined, query.offset ? +query.offset : undefined, query.status || null);
+
+        if (!orderObject || orderObject.length === 0) {
+          throw new NotFoundError('Orders', 'user id', 'admin');
+        }
+
+        return orderObject;
+      } catch (error) {
+        if (["NotFoundError", "UnauthorizedError", "ForbiddenError"].includes(error.name)) {
+          throw error;
+        }
+        console.error("OrderService.getOrdersDetailsForAllUsers: ", error);
+        throw new InternalServerError();
       }
-      console.log("OrderService: ",error);
-      throw new InternalServerError();
     }
-  }
 
-  async getOrdersDetailsForUser(userId, query) {
-    try {
-      if((query.limit && isNaN(query.limit)) || (query.offset && isNaN(query.offset))) {
-        throw new BadRequest("limit, offset", true);
-      }
-      if (query.status && typeof query.status !== "string") {
-        throw new BadRequest("status must be a string", true);
-      }
-      const orderObject = await this.repository.getOrderDetails(userId, +query.limit, +query.offset, query.status || null);
+    async getOrdersDetailsForUser(userId, query) {
+      try {
+        if ((query.limit && isNaN(query.limit)) || (query.offset && isNaN(query.offset))) {
+          throw new BadRequest("limit, offset", true);
+        }
 
-      if (!orderObject) {
-        throw new NotFoundError('User', 'user id', userId);
-      }
+        if (query.status && typeof query.status !== "string") {
+          throw new BadRequest("status must be a string", true);
+        }
 
-      return orderObject;
-    } catch(error) {
-      if(error.name === "NotFoundError" || error.name === "UnauthorizedError") {
-        throw error;
+        const orderObject = await this.repository.getOrderDetails( userId, query.limit ? +query.limit : undefined, query.offset ? +query.offset : undefined, query.status || null );
+
+        if (!orderObject || orderObject.length === 0) {
+          throw new NotFoundError('User', 'user id', userId);
+        }
+
+        return orderObject;
+      } catch (error) {
+        if (["NotFoundError", "UnauthorizedError"].includes(error.name)) {
+          throw error;
+        }
+        console.error("OrderService.getOrdersDetailsForUser: ", error);
+        throw new InternalServerError();
       }
-      console.log("OrderService: ",error);
-      throw new InternalServerError();
     }
-  }
 
 }
   

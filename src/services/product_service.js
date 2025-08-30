@@ -11,7 +11,7 @@ class ProductService {
     async createProduct(product) {
         try {
             const response = await this.repository.createProduct(
-                product.title, product.description, product.price, product.categoryId, product.image);
+                product.title, product.description, product.price, product.categoryId, product.gstPercent);
             return response;
         } catch(error) {
             console.log("ProductService: ",error);
@@ -176,6 +176,22 @@ class ProductService {
     
             console.error("ProductService: Unexpected error while updating attribute", error);
             throw new InternalServerError("Error updating attribute", { id, attributeId, value });
+        }
+    }
+
+    async updateBasicInfoForProduct(id, title, description, price, gst) {
+    
+        try {
+            const response = await this.repository.updateBasicInfoForProduct(id, title, description, price, gst);
+            
+            return response;
+        } catch (error) {
+            if (error.name === "NotFoundError") {
+                throw error;
+            }
+    
+            console.error("ProductService: Unexpected error while updating attribute", error);
+            throw new InternalServerError("Error updating attribute", { id, title, description, price, gst });
         }
     }
     
