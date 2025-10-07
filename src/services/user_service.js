@@ -163,19 +163,19 @@ class UserService {
         }
     }
 
-    async forgotPassword(userId) {
+    async forgotPassword(userEmail) {
         try {
-            const user = await this.respository.getUser(userId);
+            const user = await this.respository.getUserByEmail(userEmail);
 
             if (!user) {
-                throw new NotFoundError("User", "id", userId);
+                throw new NotFoundError("User", "email", userEmail);
             }
 
-            const token = generateJWT({id: userId, type: 'password-reset'});
-            await sendPasswordResetTokenEmail(user.email, token);
+            const token = generateJWT({id: user.id, type: 'password-reset'});
+            await sendPasswordResetTokenEmail(userEmail, token);
             console.log(token);
 
-            return token;
+            return {token: token, id: user.id};
         } catch(error) {
             if(error.name === "NotFoundError" || error.name === "UnauthorizedError" || error.name === "ForbiddenError") {
                 throw error;
