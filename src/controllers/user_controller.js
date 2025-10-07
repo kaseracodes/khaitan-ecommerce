@@ -90,7 +90,7 @@ async function updateUserDetails(req, res) {
 async function forgotPassword(req, res) {
     try {
 
-        const response = await userService.forgotPassword(req.params.id);
+        const response = await userService.forgotPassword(req.body.email);
 
         return res
                 .status(StatusCodes.CREATED)

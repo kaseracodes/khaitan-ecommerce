@@ -13,7 +13,7 @@ const userRouter = express.Router();
 userRouter.post('/signup', createUser); // mapping a route to a controller
 userRouter.post('/signin', signin);
 userRouter.patch('/', isLoggedIn, updateUserDetails);
-userRouter.post('/:id/forgot-password', forgotPassword);
+userRouter.post('/forgot-password', forgotPassword);
 userRouter.patch('/:id/reset-password', resetPassword);
 userRouter.patch('/:id/verify/role', isLoggedIn, verifyUserRole);
 userRouter.patch('/:id/verify/otp', verifyUserOTP);
